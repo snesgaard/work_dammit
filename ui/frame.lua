@@ -27,8 +27,8 @@ end
 
 function Frame:draw(x, y)
     gfx.setColor(unpack(self.color))
-    local pos, size = self.spatial:unpack()
-    gfx.rectangle("fill", x + pos[1], y + pos[2], size[1], size[2], self.corner)
+    local _x, _y, w, h = self.spatial:unpack()
+    gfx.rectangle("fill", x + _x, y + _y, w, h, self.corner)
 end
 
 return Frame

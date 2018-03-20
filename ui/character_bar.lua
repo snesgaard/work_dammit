@@ -12,6 +12,7 @@ function CharacterBar.create()
         name_label = Label.create():set_text("Fencer")
             :set_valign("bottom")
             :set_align("right")
+            :set_color(255, 255, 255)
     }
     this = setmetatable(this, CharacterBar)
     this:set_spatial()

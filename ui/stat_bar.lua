@@ -15,10 +15,12 @@ function StatBar.create()
         name_label  = Label.create()
             :set_align("left")
             :set_valign("bottom")
+            :set_color(255, 255, 255)
         ,
         value_label = Label.create()
             :set_align("right")
             :set_valign("bottom")
+            :set_color(255, 255, 255)
         ,
     }
     this = setmetatable(this, StatBar)

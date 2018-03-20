@@ -7,10 +7,17 @@ function Label.create()
     local this = {
         text = "",
         spatial = Spatial.create(0, 0, 100, 100),
+        color   = {0, 0, 0},
         valign = "center",
         align = "center",
+        font = gfx.newFont(12)
     }
     return setmetatable(this, Label)
+end
+
+function Label:set_font(font)
+    self.font = font
+    return self
 end
 
 function Label:set_spatial(spatial)
@@ -28,17 +35,23 @@ function Label:set_align(align)
     return self
 end
 
+function Label:set_color(...)
+    self.color = {...}
+    return self
+end
+
 function Label:set_valign(valign)
     self.valign = valign
     return self
 end
 
 function Label:draw(x, y, r, sx, sy)
-    local pos, size = self.spatial.pos, self.spatial.size
-    local w, h = unpack(size)
-    --gfx.setColor(0, 0, 255, 100)
-    --gfx.rectangle("fill", pos[1] + x, pos[2] + y, w, h)
-    --gfx.setColor(255, 255, 255)
+    local _x, _y, w, h = self.spatial:unpack()
+    if self.font then
+        gfx.setFont(self.font)
+    else
+        gfx.setFont()
+    end
     sx = sx or 1
     sy = sy or sx
     local font = gfx.getFont()
@@ -47,9 +60,9 @@ function Label:draw(x, y, r, sx, sy)
     elseif self.valign == "bottom" then
         y = y + h - font:getHeight() * sy
     end
-
+    gfx.setColor(unpack(self.color))
     gfx.printf(
-        self.text, pos[1] + x, pos[2] + y, w / sx, self.align, r, sx, sy
+        self.text, _x + x, _y + y, w / sx, self.align, r, sx, sy
     )
 end
 

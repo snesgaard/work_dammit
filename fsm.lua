@@ -33,7 +33,7 @@ function FiniteStateMachine:set_state(key, ...)
     if self.state and self.state.exit then
         self.state.exit(self)
     end
-    self.__work_space = {}
+    self.__workspace = {}
     self.state_key = key
     self.state = NextState
     if self.state.begin then
