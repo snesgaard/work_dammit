@@ -15,6 +15,7 @@ List = require "list"
 Dictionary = require "dictionary"
 DamageNumberServer = require "ui/damagenumber"
 GameState = require "gamestate/gamestate"
+Node = require "gamestate/node"
 
 function string.split(inputstr, sep)
     if sep == nil then
@@ -38,17 +39,6 @@ function love.load()
 
     numserver = DamageNumberServer.create()
 
-    gamestate = GameState.create()
-    gamestate = gamestate
-        --:set("foo/bar/spam", 22)
-        :set("health/fencer", 10)
-        :set("health/alchemist", 5)
-        :set("agility/fencer", 3)
-        :set("type/fencerA", "actors/fencer")
-        :set("type/poisonA", "debuffs/poison")
-        
-    print(gamestate)
-    print(gamestate:get("agility"))
 
 
     Timer.every(0.5, function() numserver:number(5, 300, 300) end)
