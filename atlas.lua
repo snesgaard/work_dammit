@@ -1,6 +1,7 @@
 local List       = require "list"
 local Dictionary = require "dictionary"
 local Event      = require "event"
+local Spatial    = require "spatial"
 
 local Frame = {}
 Frame.__index = Frame
@@ -21,7 +22,9 @@ function Sprite.create(atlas, aliases)
         frames = nil,
         time = 0,
         f = 1,
+        color = {255, 255, 255, 255},
         loop = "repeat",
+        spatial = Spatial.create(),
         on_completed = Event.create(),
         on_frame_changed = Event.create(),
         on_animation_changed = Event.create()
@@ -35,17 +38,23 @@ function Sprite:set_animation(name)
     end
     local frames = self.atlas:get_animation(name)
     if not frames then
-        log.warn("Animation %s is not defined", name)
+        log.warn("Animation <%s> is not defined", name)
     end
     self.animation = name
     self.frames = frames
     self.time = frames:head().time
     self.f = 1
     self.on_animation_changed(name)
+    return self
 end
 
 function Sprite:set_loop(loop)
     self.loop = loop
+    return self
+end
+
+function Sprite.set_color(r, g, b, a)
+    self.color = {r, g, b, a}
     return self
 end
 
@@ -92,6 +101,9 @@ function Sprite:update(dt)
 end
 
 function Sprite:draw(x, y, r, sx, sy)
+    gfx.setColor(unpack(self.color))
+    x = x + self.spatial.x
+    y = y + self.spatial.y
     self.atlas:draw(self.frames[self.f], x, y, r, sx, sy)
 end
 
@@ -118,7 +130,7 @@ function Atlas.create(path)
     local function create_quad(y, h, sheet)
         return function(arg)
             local x, w = unpack(arg)
-            return gfx.newQuad(x, y, w, h, sheet:getDimensions())
+            return gfx.newQuad(x + 0.5, y + 0.5, w, h, sheet:getDimensions())
         end
     end
 
@@ -126,11 +138,14 @@ function Atlas.create(path)
         local hitbox = hitboxes[name]
         local widths = List.create(unpack(hitbox.frame_size))
         local frames = #widths
-        local borders = widths:scan(calculate_border, positional.x)
+        local borders = widths
+            :scan(calculate_border, positional.x)
+            :insert(positional.x, 1)
+            :sub(1, -1)
         local x = positional.x
         local y = positional.y
         local h = positional.h
-        local frames = List.zip(borders:sub(1, -1), widths)
+        local frames = List.zip(borders, widths)
             :map(create_quad(y, h, sheet))
             :zip(hitbox.offset_x, hitbox.offset_y)
             :map(function(arg) return Frame.create(arg, hitbox.time) end)
@@ -141,7 +156,7 @@ function Atlas.create(path)
 end
 
 function Atlas:get_animation(name)
-    return self.frames[frames]
+    return self.frames[name]
 end
 
 function Atlas:sprite(aliases)

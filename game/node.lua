@@ -21,6 +21,9 @@ function Node:__map()
 end
 
 function Node:map(...)
+    --print("map", self.__args)
+    local prev_state = self.__prev and self.__prev:read() or {}
+    self.__args = self.__args or List.create()
     local args = self.__args
         :map(
             function(v)
@@ -31,12 +34,12 @@ function Node:map(...)
                 end
             end
         )
-    return self.__map(self.__prev:read(), unpack(args))
+
+    return self:__map(prev_state, unpack(args))
 end
 
-function Node:info(info)
-    self.__info = info
-    return self
+function Node:info()
+    return self.__info
 end
 
 function Node:read()
@@ -49,7 +52,7 @@ end
 function Node:node(Type, ...)
     local next = Type.create()
     next.__prev = self
-    next.__args = {...}
+    next.__args = List.create(...)
     return next
 end
 
