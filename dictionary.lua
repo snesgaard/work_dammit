@@ -88,4 +88,11 @@ function dictionary:tolist()
   return ret
 end
 
+function dictionary:reduce(f, init)
+    for key, val in pairs(self) do
+        init = f(init, key, val)
+    end
+    return init
+end
+
 return dictionary

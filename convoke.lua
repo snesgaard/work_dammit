@@ -3,7 +3,7 @@ Convoke.__index = Convoke
 
 function Convoke.create(f)
     local this = {
-        group = {},
+        group = Dictionary.create(),
         alive = true,
     }
     local function process(...)
@@ -53,7 +53,7 @@ end
 function Convoke:terminate()
     if not self.alive then return end
     self.alive = false
-    Timer.clear(self.group)
+    --Timer.clear(self.group)
 end
 
 function Convoke:__resume(...)

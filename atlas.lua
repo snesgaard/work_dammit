@@ -14,6 +14,10 @@ end
 local Sprite = {}
 Sprite.__index = Sprite
 
+function Sprite:__tostring()
+    return string.format("Sprite <%s>", self.atlas.path)
+end
+
 function Sprite.create(atlas, aliases)
     local this = {
         aliases = aliases,
@@ -109,6 +113,10 @@ end
 
 local Atlas = {}
 Atlas.__index = Atlas
+
+function Atlas:__tostring()
+    return string.format("Atlas <%s>", self.path)
+end
 
 function Atlas.create(path)
     local sheet = gfx.newImage(path .. "/sheet.png")

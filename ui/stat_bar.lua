@@ -39,7 +39,9 @@ function StatBar:set_spatial(root)
 end
 
 function StatBar:get_spatial()
-    return self.name_label.spatial
+    return Spatial.border(
+        self.name_label.spatial, self.value_label.spatial, self.bar.spatial
+    )
 end
 
 function StatBar:set_value(value, max_value)

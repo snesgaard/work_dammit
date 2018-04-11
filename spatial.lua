@@ -78,4 +78,43 @@ function Spatial.border(...)
     )
 end
 
+
+function Spatial:xalign(src, dst_side, src_side, margin)
+    local default_map = "left"
+    margin = margin or 0
+    local dst = self
+    local side_map = {}
+    function side_map.left(s) return s.x end
+    function side_map.right(s) return s.x + s.w end
+    function side_map.center(s) return s.x + s.w * 0.5 end
+    local src_map = side_map[src_side or default_map] or side_map[default_map]
+    local dst_map = side_map[dst_side or default_map] or side_map[default_map]
+    local margin_scales = {
+        ["right/left"] = -1,
+        ["left/right"] = 1,
+    }
+    ms = margin_scales[string.format("%s/%s", dst_side, src_side)] or 0
+    local dx = src_map(src) - dst_map(dst) + margin * ms
+    return dst:move(dx, 0)
+end
+
+function Spatial:yalign(src, dst_side, src_side, margin)
+    local default_map = "top"
+    margin = margin or 0
+    local dst = self
+    local side_map = {}
+    function side_map.top(s) return s.y end
+    function side_map.bottom(s) return s.y + s.h end
+    function side_map.center(s) return s.y + s.h * 0.5 end
+    local src_map = side_map[src_side or default_map] or side_map[default_map]
+    local dst_map = side_map[dst_side or default_map] or side_map[default_map]
+    local margin_scales = {
+        ["top/bottom"] = 1,
+        ["bottom/top"] = -1,
+    }
+    ms = margin_scales[string.format("%s/%s", dst_side, src_side)] or 0
+    local dy = src_map(src) - dst_map(dst) + margin * ms
+    return dst:move(0, dy)
+end
+
 return Spatial

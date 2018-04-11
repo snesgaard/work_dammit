@@ -258,6 +258,16 @@ function list:unpack()
     return unpack(self)
 end
 
+function list:cycle(offset)
+    local ret = list.create()
+    local size = self:size()
+    for i = 1, size do
+        local index = (i + offset - 1) % size
+        ret[i] = self[index + 1]
+    end
+    return ret
+end
+
 
 
 return list

@@ -60,6 +60,7 @@ function Label:draw(x, y, r, sx, sy)
     elseif self.valign == "bottom" then
         y = y + h - font:getHeight() * sy
     end
+
     gfx.setColor(unpack(self.color))
     gfx.printf(
         self.text, _x + x, _y + y, w / sx, self.align, r, sx, sy

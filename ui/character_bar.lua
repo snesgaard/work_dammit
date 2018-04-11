@@ -7,11 +7,11 @@ CharacterBar.__index = CharacterBar
 
 function CharacterBar.create()
     local this = {
-        hp_bar = StatBar.create():set_name("HP"):set_value(10, 10),
+        hp_bar = StatBar.create():set_name("HP"):set_value(5, 10),
         mp_bar = StatBar.create():set_name("MP"):set_value(5, 5),
         name_label = Label.create():set_text("Fencer")
             :set_valign("bottom")
-            :set_align("right")
+            :set_align("center")
             :set_color(255, 255, 255)
     }
     this = setmetatable(this, CharacterBar)
@@ -22,7 +22,7 @@ end
 function CharacterBar:set_spatial(root)
     root = root or Spatial.create()
 
-    self.name_label.spatial = root:set_size(50, 20)
+    self.name_label.spatial = root:set_size(70, 22)
     self.hp_bar:set_spatial(
         self.name_label.spatial:move(10, 0, "right")
     )
@@ -31,10 +31,17 @@ function CharacterBar:set_spatial(root)
     )
 end
 
+function CharacterBar:get_spatial()
+    return Spatial.border(
+        self.name_label.spatial, self.hp_bar:get_spatial()
+        --self.mp_bar:get_spatial()
+    )
+end
+
 function CharacterBar:draw(...)
     self.name_label:draw(...)
     self.hp_bar:draw(...)
-    self.mp_bar:draw(...)
+    --self.mp_bar:draw(...)
 end
 
 return CharacterBar

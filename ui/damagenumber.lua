@@ -1,19 +1,25 @@
 local Label = require "ui/label"
 local Fonts = require "ui/fonts"
+local Spatial = require "spatial"
 
 local DamageNumber = {}
 DamageNumber.__index = DamageNumber
 
-function DamageNumber.create(number, master)
+function DamageNumber.create(number, master, type)
+    local color = type == "heal" and {50, 255, 120, 0} or {255, 120, 50, 0}
     local this = {
         label = Label.create()
             :set_text(tostring(number))
-            :set_color(255, 255, 255, 0)
-            :set_font(Fonts(25)),
+            :set_color(unpack(color))
+            :set_font(Fonts(25))
+            :set_align("center")
+            :set_valign("center"),
         scale = 5,
         animation = Convoke(DamageNumber.animate),
         master = master,
     }
+    this.label.spatial = Spatial.create(0, 0, 0, 0)
+        :expand(200, 50)
     this = setmetatable(this, DamageNumber)
     this.animation(this)
     return this
@@ -21,14 +27,14 @@ end
 
 function DamageNumber.animate(handle, self)
     local tween = handle:tween(0.15, {
-        [self.label.color] = {255, 120, 50, 255},
+        [self.label.color] = {[4] = 255},
         [self] = {scale = 1}
     })
     handle:wait(tween)
     handle:wait(1)
     local spatial = self.label.spatial
     tween = handle:tween(0.25, {
-        [self.label.color] = {255, 120, 50, 0},
+        [self.label.color] = {[4] = 0},
         [self.label.spatial] = spatial:move(0, -50)
     })
     handle:wait(tween)
@@ -62,8 +68,8 @@ function DamageNumberServer.create()
     return setmetatable(this, DamageNumberServer)
 end
 
-function DamageNumberServer:number(number, x, y)
-    number = DamageNumber.create(number, self)
+function DamageNumberServer:number(number, x, y, type)
+    number = DamageNumber.create(number, self, type)
     self.numbers[number] = true
     self.time[number] = love.timer.getTime()
     self.x[number] = x + love.math.random(-10, 10)

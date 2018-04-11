@@ -18,11 +18,9 @@ VItem.STATES = {selected = {}, unselected = {}}
 
 function VItem.STATES.selected:begin()
     self.__workspace.spatial = self.frame.spatial:copy()
-    self.__workspace.convoker = Convoke(VItem.STATES.selected.animate)
-    self.__workspace.convoker(self)
 end
 
-function VItem.STATES.selected.animate(handle, self)
+function VItem.STATES.selected.convoke(handle, self)
     local spatial = self.__workspace.spatial
     local tween = handle:tween(0.1, {
         [self.frame.spatial] = spatial:expand(5, 5)
@@ -43,12 +41,8 @@ function VItem.STATES.selected.animate(handle, self)
     end
 end
 
-function VItem.STATES.selected:update(dt)
-    self.__workspace.convoker:update(dt)
-end
 
 function VItem.STATES.selected:exit()
-    self.__workspace.convoker:terminate()
     self.frame.spatial = self.__workspace.spatial
 end
 
@@ -86,6 +80,8 @@ function VMenu.create()
         margin = 4,
         border_margin = 8,
         shape = Vec2(150, 30),
+        on_select = Event.create(),
+        on_escape = Event.create(),
     }
     this = setmetatable(this, VMenu)
     this:set_items(List.create("Foo", "Bar", "Spam", "foo", "bar", "spam"))
@@ -106,6 +102,12 @@ function VMenu:set_selection(index)
     self.selected = index
     self.ui_items[self.selected]:set_state("selected")
     return self
+end
+
+function VMenu:get_selection()
+    local index = self.selected
+    local item = self.items and self.items[index] or nil
+    return item, index
 end
 
 function VMenu:next_item()
@@ -151,19 +153,28 @@ function VMenu:keypressed(key)
     local interval = 0.35
     if key == "up" then
         self:prev_item()
-        self.up_tween = Timer.every(interval, function() self:prev_item() end)
+        --self.up_tween = Timer.every(interval, function() self:prev_item() end)
     elseif key == "down" then
         self:next_item()
-        self.down_tween = Timer.every(interval, function() self:next_item() end)
+        --self.down_tween = Timer.every(interval, function() self:next_item() end)
+    elseif key == "space" then
+        self.on_select(self:get_selection())
+    elseif key == "lshift" then
+        self.on_escape()
     end
 end
 
 function VMenu:keyreleased(key)
     if key == "up" then
-        self.up_tween:remove()
+        if self.up_tween then self.up_tween:remove() end
     elseif key == "down" then
-        self.down_tween:remove()
+        if self.down_tween then self.down_tween:remove() end
     end
+end
+
+function VMenu:halt()
+    if self.up_tween then  self.up_tween:remove() end
+    if self.down_tween then self.down_tween:remove() end
 end
 
 function VMenu:draw(...)
