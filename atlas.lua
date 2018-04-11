@@ -2,13 +2,14 @@ local List       = require "list"
 local Dictionary = require "dictionary"
 local Event      = require "event"
 local Spatial    = require "spatial"
+local json       = require "modules/json"
 
 local Frame = {}
 Frame.__index = Frame
 
-function Frame.create(arg, t)
-    local quad, ox, oy = unpack(arg)
-    return setmetatable({quad = quad, ox = ox, oy = oy, time = t}, Frame)
+function Frame.create(quad, ox, oy, t)
+    local this = {quad = quad, ox = ox, oy = oy, time = t, hitbox = {}}
+    return setmetatable(this, Frame)
 end
 
 local Sprite = {}
@@ -89,6 +90,11 @@ function Sprite:set_time(time)
     return self
 end
 
+function Sprite:set_origin(origin)
+    self.origin = origin
+    return self
+end
+
 function Sprite:refresh_time()
     local frame = self.frames[self.f]
     return self:set_time(self.time + frame.time)
@@ -108,7 +114,7 @@ function Sprite:draw(x, y, r, sx, sy)
     gfx.setColor(unpack(self.color))
     x = x + self.spatial.x
     y = y + self.spatial.y
-    self.atlas:draw(self.frames[self.f], x, y, r, sx, sy)
+    self.atlas:draw(self.frames[self.f], self.origin, x, y, r, sx, sy)
 end
 
 local Atlas = {}
@@ -119,15 +125,12 @@ function Atlas:__tostring()
 end
 
 function Atlas.create(path)
-    local sheet = gfx.newImage(path .. "/sheet.png")
-    local status, normal = pcall(function()
-        return gfx.newImage(path .. "/normal.png")
-    end)
-    local hitboxes = require (path .. "/hitbox")
-    local info = require (path   .. "/info")
+    local sheet = gfx.newImage(path .. "/atlas.png")
+    local index = require (path   .. "/index")
 
     local this = {
         frames = Dictionary.create(),
+        slices = Dictionary.create(),
         sheet  = sheet,
         normal = normal,
         path = path,
@@ -135,28 +138,36 @@ function Atlas.create(path)
 
     local function calculate_border(lx, ux) return lx + ux end
 
-    local function create_quad(y, h, sheet)
-        return function(arg)
-            local x, w = unpack(arg)
-            return gfx.newQuad(x + 0.5, y + 0.5, w, h, sheet:getDimensions())
+    local dim = {sheet:getDimensions()}
+    for name, positional in pairs(index) do
+        local data_path = path .. positional.data
+        local data = json.decode(love.filesystem.read( data_path ))
+        local frames = List.create()
+        for _, f in ipairs(data.frames) do
+            local x = f.frame.x + positional.x + 1
+            local y = f.frame.y + positional.y + 1
+            local w, h = f.frame.w - 2, f.frame.h - 2
+            local quad = gfx.newQuad(x + 0.5, y + 0.5, w, h, unpack(dim))
+            local dt = f.duration / 1000.0
+            local ox, oy = f.spriteSourceSize.x, f.spriteSourceSize.y
+            frames[#frames + 1] = Frame.create(quad, ox, oy, dt)
         end
-    end
-
-    for name, positional in pairs(info) do
-        local hitbox = hitboxes[name]
-        local widths = List.create(unpack(hitbox.frame_size))
-        local frames = #widths
-        local borders = widths
-            :scan(calculate_border, positional.x)
-            :insert(positional.x, 1)
-            :sub(1, -1)
-        local x = positional.x
-        local y = positional.y
-        local h = positional.h
-        local frames = List.zip(borders, widths)
-            :map(create_quad(y, h, sheet))
-            :zip(hitbox.offset_x, hitbox.offset_y)
-            :map(function(arg) return Frame.create(arg, hitbox.time) end)
+        for _, slice in pairs(data.meta.slices) do
+            for _, k in ipairs(slice.keys) do
+                k.bounds.cx = k.bounds.x + k.bounds.w * 0.5 - 0.5
+                k.bounds.cy = k.bounds.y + k.bounds.h - 0.5
+                frames[k.frame + 1].hitbox[slice.name] = k.bounds
+            end
+            local defaults = {}
+            for _, f in ipairs(frames) do
+                for key, val in pairs(defaults) do
+                    f.hitbox[key] = f.hitbox[key] or val
+                end
+                for key, val in pairs(f.hitbox) do
+                    defaults[key] = val
+                end
+            end
+        end
         this.frames[name] = frames
     end
 
@@ -171,8 +182,15 @@ function Atlas:sprite(aliases)
     return Sprite.create(self, aliases)
 end
 
-function Atlas:draw(frame, x, y, r, sx, sy)
-    gfx.draw(self.sheet, frame.quad, x,  y, r, sx, sy, frame.ox, frame.oy)
+function Atlas:draw(frame, origin, x, y, r, sx, sy)
+    local cx, cy = 0, 0
+    if origin and frame.hitbox[origin] then
+        local center = frame.hitbox[origin]
+        cx, cy = center.cx, center.cy
+    end
+    gfx.draw(
+        self.sheet, frame.quad, x,  y, r, sx, sy, -frame.ox + cx, -frame.oy + cy
+    )
 end
 
 return Atlas
