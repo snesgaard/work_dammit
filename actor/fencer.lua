@@ -4,18 +4,19 @@ local fencer = {}
 
 local animation_aliases = {
     idle = "fencer_idle",
-    attack = "fencer_attack",
+    attack = "fencer_attack/attack",
     cast = "fencer_cast",
-    dash = "fencer_dash",
-    evade = "fencer_bdash",
+    dash = "fencer_attack/dash",
+    evade = "fencer_attack/evade",
 }
 
 function fencer.init_visual(state, id)
-    local atlas_path = "res/sprites/misc"
+    --local atlas_path = "res/sprites/misc"
+    local atlas_path = "art/main_actors"
     local atlas = state.atlas[atlas_path] or Atlas.create(atlas_path)
     local sprite = atlas:sprite(animation_aliases)
     local icon_path = "res/sprites/icon"
-    local icon_atlas = state.atlas[icon_path] or Atlas.create(icon_path)
+    --local icon_atlas = state.atlas[icon_path] or Atlas.create(icon_path)
 
     state.atlas[atlas_path] = atlas
     state.atlas[icon_path] = icon_atlas
