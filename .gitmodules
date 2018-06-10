@@ -1,0 +1,3 @@
+[submodule "art_damnit"]
+	path = art
+	url = ../art_damnit.git
