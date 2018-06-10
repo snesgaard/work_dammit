@@ -17,6 +17,8 @@ function BoxSprite:draw(x, y, r, sx, sy)
     gfx.rectangle("fill", x - w * 0.5, y, w, -h)
 end
 
+function BoxSprite:set_origin() return self end
+
 function BoxSprite:set_animation()
     return self
 end

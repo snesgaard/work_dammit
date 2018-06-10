@@ -103,7 +103,9 @@ function love.load()
     end
     --visualstate = visualstate:initialize("init_visual")
     for _, sprite in pairs(visualstate.sprite) do
-        sprite:set_animation("idle")
+        sprite
+            :set_animation("idle")
+            :set_origin("origin")
     end
     heroesbar = FactionBar.create():setup(gamestate)
 

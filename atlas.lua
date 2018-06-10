@@ -130,6 +130,7 @@ function Atlas.create(path)
 
     local this = {
         frames = Dictionary.create(),
+        tags   = Dictionary.create(),
         slices = Dictionary.create(),
         sheet  = sheet,
         normal = normal,
@@ -140,7 +141,7 @@ function Atlas.create(path)
 
     local dim = {sheet:getDimensions()}
     for name, positional in pairs(index) do
-        local data_path = path .. positional.data
+        local data_path = path .. '/' .. positional.data
         local data = json.decode(love.filesystem.read( data_path ))
         local frames = List.create()
         for _, f in ipairs(data.frames) do
@@ -168,14 +169,25 @@ function Atlas.create(path)
                 end
             end
         end
+        local tags = Dictionary.create()
+        for _, tag in pairs(data.meta.frameTags) do
+            tags[tag.name] = tag
+        end
         this.frames[name] = frames
+        this.tags[name] = tags
     end
 
     return setmetatable(this, Atlas)
 end
 
 function Atlas:get_animation(name)
-    return self.frames[name]
+    local name, tag_name = unpack(string.split(name, '/'))
+    print(name, tag_name, self.tags[name][tag_name])
+    local frames = self.frames[name]
+    if not tag_name then return frames end
+    local tag = self.tags[name][tag_name]
+    if not tag then return frames end
+    return frames:sub(tag.from + 1, tag.to + 1)
 end
 
 function Atlas:sprite(aliases)
