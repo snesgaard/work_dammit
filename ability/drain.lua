@@ -13,6 +13,7 @@ function Drain.animate(convoke, context, visualstate, main_graph, sub_graph)
     convoke:wait(
         convoke:tween(0.25, {[context.sphere] = {r = 15, a = 150}})
     )
+    visualstate.sprite[src]:set_animation("cast")
     main_graph:progress(attack_node)
     convoke:wait(0.1)
     convoke:wait(
@@ -26,6 +27,7 @@ function Drain.animate(convoke, context, visualstate, main_graph, sub_graph)
             0.25, {[context.sphere] = {r = 100, a = 0}}
         )
     )
+    visualstate.sprite[src]:set_animation("idle")
 end
 
 function Drain.draw(context)

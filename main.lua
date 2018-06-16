@@ -24,6 +24,13 @@ Animation = require "animation/server"
 Graph = require "game/graph"
 VisualState = require "ui/visualstate"
 TurnBar = require "ui/turnbar"
+VisualGraph = require "visualgraph"
+local path = require "path"
+--Sprite = require "animation/sprite"
+
+function istype(Type, object)
+    return Type.__index == object.__index
+end
 
 local TestAnimation = {}
 
@@ -146,9 +153,16 @@ function love.load()
         visualstate.ui.turnbar:pop()
     end)
 
-    battle:set_state("battle_begin")
+    --battle:set_state("battle_begin")
+    print("huhuh", List.__index, List.create().__index)
 
     Animation.animate(TestAnimation):run()
+
+    print("the split", path.split('/foo///bar'))
+    print("sanity", path.sanitize('/../baz/boo'))
+    print(VisualGraph.set_cwd('foo/bar'))
+    print(VisualGraph.set_cwd('/../baz/boo'))
+    print(VisualGraph.set_cwd('//bee'))
 
 end
 

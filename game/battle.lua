@@ -57,6 +57,7 @@ function Battle.STATES.pick_action:begin()
     local function callback(action, target)
         local actor =  order[actions:size() + 1]
         log.info("Adding action %s -> %s for actor %s", action, target, actor)
+        print(self.visualstate.sprite[actor]:set_animation("chant"))
         --self.actions = self.actions:insert({action, target})
         self.graph:progress(
             self.graph:present()
@@ -97,11 +98,12 @@ function Battle.STATES.execute_action:begin()
     local action = state:get("turn/actions"):tail()
     local targets = state:get("turn/targets"):tail()
     local actor  = state:get("turn/order"):tail()
-    print(action, targets, actor)
     if not actor then return self:set_state("round_begin") end
 
     self.__group = self.__group or {}
-    local action = require "ability/drain"
+    local drain = require "ability/drain"
+    local attack = require "ability/phys_attack"
+    action = action == "Attack" and attack or drain
     local init_graph = self.graph:present()
     local end_graph = action.map(init_graph, actor, targets:head())
 
@@ -123,6 +125,5 @@ end
 function Battle.STATES.execute_action:draw(...)
     Animation.draw(self.__group)
 end
-
 
 return Battle

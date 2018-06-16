@@ -125,6 +125,7 @@ function Atlas:__tostring()
 end
 
 function Atlas.create(path)
+    print("CALL")
     local sheet = gfx.newImage(path .. "/atlas.png")
     local index = require (path   .. "/index")
 
@@ -153,22 +154,35 @@ function Atlas.create(path)
             local ox, oy = f.spriteSourceSize.x, f.spriteSourceSize.y
             frames[#frames + 1] = Frame.create(quad, ox, oy, dt)
         end
+        -- Update slices with a central bound
+
         for _, slice in pairs(data.meta.slices) do
+            local hitboxes = List.create()
             for _, k in ipairs(slice.keys) do
                 k.bounds.cx = k.bounds.x + k.bounds.w * 0.5 - 0.5
                 k.bounds.cy = k.bounds.y + k.bounds.h - 0.5
-                frames[k.frame + 1].hitbox[slice.name] = k.bounds
+                hitboxes[k.frame + 1] = k.bounds
             end
-            local defaults = {}
-            for _, f in ipairs(frames) do
-                for key, val in pairs(defaults) do
-                    f.hitbox[key] = f.hitbox[key] or val
+            -- If data is set to once, dont interpolate
+            if slice.data ~= "once" then
+                print("fill pass")
+                -- Forward pass to fill empty frames
+                for i, _ in ipairs(frames) do
+                    hitboxes[i] = hitboxes[i] or hitboxes[i - 1]
                 end
-                for key, val in pairs(f.hitbox) do
-                    defaults[key] = val
+                -- Backwords pass
+                for i, _ in ipairs(frames) do
+                    local s = hitboxes:size()
+                    local index = s - i + 1
+                    hitboxes[index] = hitboxes[index] or hitboxes[index + 1]
                 end
+            end
+            -- Fill pass
+            for i, f in ipairs(frames) do
+                frames[i].hitbox[slice.name] = hitboxes[i]
             end
         end
+        -- Fill in tags
         local tags = Dictionary.create()
         for _, tag in pairs(data.meta.frameTags) do
             tags[tag.name] = tag
@@ -182,7 +196,6 @@ end
 
 function Atlas:get_animation(name)
     local name, tag_name = unpack(string.split(name, '/'))
-    print(name, tag_name, self.tags[name][tag_name])
     local frames = self.frames[name]
     if not tag_name then return frames end
     local tag = self.tags[name][tag_name]

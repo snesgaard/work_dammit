@@ -86,7 +86,7 @@ function PickAction.create(gamestate, visualstate, actor)
         on_select = Event.create(),
         anime_group = {},
         actor = actor,
-        pos = visualstate.spatial[actor]:move(25, -250),
+        pos = visualstate.spatial[actor]:move(25, -350),
         menu = VerticalMenu.create()
             :set_items(List.create("Attack", "Magic", "Items", "Defend")),
     }
