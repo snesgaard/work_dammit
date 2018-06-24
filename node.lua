@@ -55,6 +55,22 @@ function Node:join(co)
     end
 end
 
+function Node:set_state(state, ...)
+    if not state then return self end
+
+    if self.__state and self.__state.exit then
+        self.__state.exit(self, state)
+    end
+
+    local prev_state = self.__state
+    self.__state = state
+    if state.enter then
+        state.enter(self, prev_state, ...)
+    end
+
+    return self
+end
+
 function Node:wait(...)
     local events = {...}
 
