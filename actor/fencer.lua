@@ -2,6 +2,8 @@ local Atlas = require "atlas"
 local Sprite = require "animation/sprite"
 
 local fencer = {}
+fencer.__index = fencer
+fencer = setmetatable(fencer, fencer)
 
 local animation_aliases = {
     idle = "fencer_idle",
@@ -35,7 +37,10 @@ function animations.dash(sprite, dt)
 end
 
 function animations.attack(sprite, dt)
+    dt = sprite:play(dt, "fencer_dash/windup")
+    sprite.on_user("slash")
     dt = sprite:play(dt, "fencer_dash/attack")
+    sprite.on_user("done")
     sprite:loop(dt, "fencer_dash/post_attack")
 end
 
@@ -43,12 +48,24 @@ function animations.evade(sprite, dt)
     sprite:loop(dt, "fencer_dash/evade")
 end
 
+local function attack_offset(sprite)
+    local frames = sprite.atlas:get_animation("fencer_dash/attack")
+    local origin = frames:head().hitbox.origin
+    local attack = frames:head().hitbox.attack
+    return math.ceil(attack.cx - origin.cx) * sprite.scale
+end
+
 local function create_sprite(atlas)
     local sprite = Sprite.create(atlas)
     for key, anime in pairs(animations) do
         sprite:register(key, anime)
     end
+    sprite.attack_offset = attack_offset
     return sprite
+end
+
+function fencer.__tostring()
+    return "Fencer"
 end
 
 function fencer.init_visual(state, id)

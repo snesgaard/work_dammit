@@ -1,15 +1,18 @@
 local Event = require "event"
+local Node = require "game/node"
 
 local Graph = {}
 Graph.__index = Graph
 
-function Graph.create()
-    local this = {
-        __on_progress = Dictionary.create(),
-        __on_regress  = Dictionary.create(),
-        __graph = List.create()
-    }
-    return setmetatable(this, Graph)
+function Graph.create(self, gamestate)
+    self.__on_progress = Dictionary.create()
+    self.__on_regress  = Dictionary.create()
+    self.__graph = List.create()
+
+    if gamestate then
+        self:progress(Node.init(gamestate))
+    end
+    return this
 end
 
 function Graph:present()

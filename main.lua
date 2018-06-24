@@ -8,10 +8,11 @@ Timer = require "modules.knife.timer"
 Event = require "event"
 List = require "list"
 Dictionary = require "dictionary"
-Node = require "node"
+process = require "node"
 thread = require "thread"
 id_gen = require "id_gen"
 __gamestate = require "game/gamestate"
+Graph = require "game/graph"
 --Sprite = require "animation/sprite"
 
 function istype(Type, object)
@@ -44,9 +45,9 @@ function love.load()
     gfx.setDefaultFilter("nearest", "nearest")
     nodes = {}
 
-    nodes.root = Node.create(root_node)
+    nodes.root = process.create(root_node)
 
-    gamestate = __gamestate.create()
+    local gamestate = __gamestate.create()
 
     visual = {
         sprite = {},
@@ -57,8 +58,11 @@ function love.load()
     fen_id = id_gen.register(fencer)
     fencer.init_visual(visual, fen_id)
     gamestate = fencer.init_state(gamestate, fen_id)
-    print(gamestate)
     visual.sprite[fen_id]:set_animation("idle")
+
+    nodes.gamestate = process.create(Graph, gamestate)
+
+    print(nodes.gamestate, nodes.root)
 end
 
 function love.update(dt)

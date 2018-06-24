@@ -13,7 +13,7 @@ end
 
 function BoxSprite:draw(x, y, r, sx, sy)
     gfx.setColor(255, 255, 255)
-    local w, h = 30 * sx, 75 * sy
+    local w, h = 30 * sx * 2, 75 * sy * 2
     gfx.rectangle("fill", x - w * 0.5, y, w, -h)
 end
 

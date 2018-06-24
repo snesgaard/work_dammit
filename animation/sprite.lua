@@ -13,6 +13,10 @@ function Sprite:draw(x, y, r, sx, sy)
     gfx.setColor(unpack(self.color))
     x = x + self.spatial.x
     y = y + self.spatial.y
+    sx = sx or 1
+    sy = sy or 1
+    sx = sx * self.scale
+    sy = sy * self.scale
     self.atlas:draw(self.__draw_frame, self.origin, x, y, r, sx, sy)
 end
 
@@ -30,12 +34,14 @@ function Sprite:play(dt, frame_key)
             self.time = self.time - dt
         end
     end
+
     return dt
 end
 
 function Sprite:loop(dt, frame_key)
     while true do
         dt = self:play(dt, frame_key)
+        self.on_loop()
     end
 end
 
@@ -69,6 +75,9 @@ function Sprite:update(dt)
     return self
 end
 
+function Sprite:attack_offset()
+    return 0
+end
 
 function Sprite.create(atlas)
     local this = {
@@ -78,7 +87,10 @@ function Sprite.create(atlas)
         active = nil,
         origin = 'origin',
         spatial = Spatial.create(),
-        color = {255, 255, 255, 255}
+        color = {255, 255, 255, 255},
+        scale = 2,
+        on_user = Event.create(),
+        on_loop = Event.create(),
     }
     return setmetatable(this, Sprite)
 end

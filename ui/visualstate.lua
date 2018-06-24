@@ -6,10 +6,10 @@ function VisualState.create()
         ui = {
             numbers = DamageNumberServer.create()
         },
-        spatial = {},
+        spatial = Dictionary.create(),
         face = {},
         atlas = {},
-        sprite = {},
+        sprite = Dictionary.create(),
         icon = {
             color = {},
             bw = {},

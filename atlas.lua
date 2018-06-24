@@ -125,7 +125,6 @@ function Atlas:__tostring()
 end
 
 function Atlas.create(path)
-    print("CALL")
     local sheet = gfx.newImage(path .. "/atlas.png")
     local index = require (path   .. "/index")
 
@@ -165,7 +164,6 @@ function Atlas.create(path)
             end
             -- If data is set to once, dont interpolate
             if slice.data ~= "once" then
-                print("fill pass")
                 -- Forward pass to fill empty frames
                 for i, _ in ipairs(frames) do
                     hitboxes[i] = hitboxes[i] or hitboxes[i - 1]
