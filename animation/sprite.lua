@@ -8,6 +8,10 @@ local Spatial    = require "spatial"
 local Sprite = {}
 Sprite.__index = Sprite
 
+function Sprite.__tostring()
+    return "Sprite"
+end
+
 function Sprite:draw(x, y, r, sx, sy)
     if not self.__draw_frame then return end
     gfx.setColor(unpack(self.color))
@@ -58,6 +62,7 @@ function Sprite:set_animation(a)
         self.active = coroutine.wrap(
             function(sprite, dt)
                 s(sprite, dt, prev_state)
+                self.active = nil
             end
         )
     end

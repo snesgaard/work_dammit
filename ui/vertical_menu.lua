@@ -1,192 +1,192 @@
-local Event = require "event"
-local List  = require "list"
-local Vec2  = require "vec2"
-local Dictionary = require "dictionary"
-local Spatial = require "spatial"
-local FSM = require "fsm"
-
 local Frame = require "ui/frame"
 local Label = require "ui/label"
 local Fonts = require "ui/fonts"
+local Spatial = require "spatial"
 
-local VItem = {}
-VItem.__index = VItem
 
-setmetatable(VItem, {__index = FSM})
+local Item = {}
+Item.__index = Item
 
-VItem.STATES = {selected = {}, unselected = {}}
+Item.selected = {}
+Item.normal = {}
 
-function VItem.STATES.selected:begin()
-    self.__workspace.spatial = self.frame.spatial:copy()
-end
-
-function VItem.STATES.selected.convoke(handle, self)
-    local spatial = self.__workspace.spatial
-    local tween = handle:tween(0.1, {
-        [self.frame.spatial] = spatial:expand(5, 5)
-    })
-    handle:tween(0.1, {[self.frame.color] = {255, 255, 0}})
-    handle:wait(tween)
-    tween = handle:tween(0.1, {
-        [self.frame.spatial] = spatial:expand(2, 2)
-    })
-    handle:tween(0.1, {[self.frame.color] = {255, 255, 125}})
-    handle:wait(tween)
-    while true do
-        tween = handle:tween(0.5, {[self.frame.color] = {255, 255, 50}})
-        handle:wait(tween)
-        tween = handle:tween(0.5, {[self.frame.color] = {255, 255, 125}})
-        handle:wait(tween)
-        handle:wait(0.5)
-    end
+function Item:create(text)
+    self.frame = Frame.create():set_color(255, 255, 255)
+    self.label = Label.create():set_text(text):set_font(Fonts(14))
 end
 
 
-function VItem.STATES.selected:exit()
-    self.frame.spatial = self.__workspace.spatial
-end
-
-function VItem.STATES.unselected:begin()
-    self.frame:set_color(255, 255, 255)
-end
-
-function VItem.create(text)
-    local this = {}
-    this.frame = Frame.create():set_color(255, 255, 255)
-    this.label = Label.create():set_text(text):set_font(Fonts(14))
-
-    this = setmetatable(this, VItem)
-    this:set_state("unselected")
-    return this
-end
-
-function VItem:set_spatial(spatial)
-    self.frame:set_spatial(spatial)
-    self.label:set_spatial(spatial)
-    return self
-end
-
-function VItem:draw(...)
+function Item:draw(...)
     self.frame:draw(...)
     gfx.setColor(0, 0, 0)
     self.label:draw(...)
 end
 
-local VMenu = {}
-VMenu.__index = VMenu
 
-function VMenu.create()
-    local this = {
-        margin = 4,
-        border_margin = 8,
-        shape = Vec2(150, 30),
-        on_select = Event.create(),
-        on_escape = Event.create(),
-    }
-    this = setmetatable(this, VMenu)
-    this:set_items(List.create("Foo", "Bar", "Spam", "foo", "bar", "spam"))
-    this:set_selection(1)
-    return this
-end
-
-function VMenu:set_selection(index)
-    local size = #self.items
-    if index < 1 then
-        return self:set_selection(index + size)
-    elseif index > size then
-        return self:set_selection(index - size)
-    end
-    if self.selected then
-        self.ui_items[self.selected]:set_state("unselected")
-    end
-    self.selected = index
-    self.ui_items[self.selected]:set_state("selected")
+function Item:set_spatial(spatial)
+    self.frame:set_spatial(spatial)
+    self.label:set_spatial(spatial)
+    self.spatial = Spatial.create(spatial:unpack())
     return self
 end
 
-function VMenu:get_selection()
-    local index = self.selected
-    local item = self.items and self.items[index] or nil
-    return item, index
-end
 
-function VMenu:next_item()
-    return self:set_selection(self.selected + 1)
-end
-
-function VMenu:prev_item()
-    return self:set_selection(self.selected - 1)
-end
-
-function VMenu:get_structure()
-    local structure = Dictionary.create()
-    local pos = Spatial.create(
-        self.margin, self.margin, self.shape[1], self.shape[2]
-    )
-    for i = 1, self.items:size() do
-        structure[i] = pos
-        pos = pos:move(0, self.margin, nil, "bottom")
+function Item.selected.enter(self)
+    self.frame.color = {255, 255, 255}
+    self.frame:set_spatial(self.spatial:copy())
+    if not self.animation then
+         self.animation = self:fork(self.selected.animate)
     end
-    structure.frame = Spatial.border(unpack(structure))
-        :expand(self.border_margin, self.border_margin)
-    return structure
 end
 
-function VMenu:set_items(items)
+function Item.selected.animate(self)
+    local spatial = Spatial.create(self.spatial:unpack())
+    local tween = Timer.tween(0.1, {
+        [self.frame.spatial] = spatial:expand(5, 5),
+        [self.frame.color] = {255, 255, 0}
+    })
+    self:wait(tween)
+    tween = Timer.tween(0.1, {
+        [self.frame.spatial] = spatial,
+        [self.frame.color] = {255, 255, 125}
+    })
+    self:wait(tween)
+    while true do
+        tween = Timer.tween(0.5, {[self.frame.color] = {255, 255, 50}})
+        self:wait(tween)
+        tween = Timer.tween(0.5, {[self.frame.color] = {255, 255, 125}})
+        self:wait(tween)
+        self:wait(0.5)
+    end
+end
+
+
+function Item.normal.enter(self)
+    if self.animation then
+        self:join{self.animation}
+        self.animation = nil
+    end
+
+    self.frame.color = {255, 255, 255}
+    self.frame:set_spatial(self.spatial:copy())
+end
+
+
+local Menu = {}
+Menu.__index = Menu
+
+
+function Menu:create(items)
+    self.on_select = Event.create()
+    self.on_abort = Event.create()
+
+    self.frame = Frame.create():set_color(150, 150, 150)
+    local frame_spatial, item_spatials = self.structure(items)
+    self.frame:set_spatial(frame_spatial)
+
     self.items = items
-    self.structure = self:get_structure()
-    self.ui_items = {}
-    for i, spatial in ipairs(self.structure) do
-        self.ui_items[i] = VItem.create(items[i])
-            :set_spatial(spatial)
-            --:set_state(i == 1 and "selected" or "unselected")
+    local function __make_item_node(item)
+        return process.create(Item, item.name)
     end
-    self.outer_frame = Frame.create()
-        :set_spatial(self.structure.frame)
-        :set_color(125, 125, 125)
-    self.selected = nil
-    self:set_selection(1)
-    return self
+    self.item_nodes = items:map(__make_item_node)
+
+    for index, node in pairs(self.item_nodes) do
+        node:set_spatial(item_spatials[index]):set_state(node.normal)
+    end
+
+    self.active = 1
+    self.item_nodes[1]:set_state(Item.selected)
+
+    self.alive = true
+
+    self:fork(Menu.controls)
 end
 
-function VMenu:keypressed(key)
-    local interval = 0.35
+
+function Menu:revive()
+    if not self.alive then
+        self.alive = true
+        self:fork(Menu.controls)
+    end
+end
+
+
+function Menu:kill()
+    self.alive = false
+    self.contol_co = nil
+end
+
+
+function Menu.controls(self)
+    local key = self:wait(nodes.root.keypressed)
+
+    local prev_active = self.active
+
     if key == "up" then
-        self:prev_item()
-        --self.up_tween = Timer.every(interval, function() self:prev_item() end)
+        self.active = self.active - 1
+        if self.active < 1 then
+            self.active = #self.items
+        end
     elseif key == "down" then
-        self:next_item()
-        --self.down_tween = Timer.every(interval, function() self:next_item() end)
+        self.active = self.active + 1
+        if self.active > #self.items then
+            self.active = 1
+        end
     elseif key == "space" then
-        self.on_select(self:get_selection())
-    elseif key == "lshift" then
-        self.on_escape()
+        self.on_select(self.active, self.items[self.active])
+    elseif key == "backspace" then
+        self.on_abort(self.active, self.items[self.active])
+    end
+
+    if prev_active ~= self.active then
+        self.item_nodes[prev_active]:set_state(Item.normal)
+        self.item_nodes[self.active]:set_state(Item.selected)
+    end
+
+    if self.alive then
+        return Menu.controls(self)
     end
 end
 
-function VMenu:keyreleased(key)
-    if key == "up" then
-        if self.up_tween then self.up_tween:remove() end
-    elseif key == "down" then
-        if self.down_tween then self.down_tween:remove() end
+
+function Menu.structure(items)
+    local base_spatial = Spatial.create(0, 0, 150, 30)
+    local inter_margin = 5
+    local outer_margin = 9
+
+    local item_spatials = List.create()
+
+    for i, item in ipairs(items) do
+        item_spatials[i] = base_spatial
+        base_spatial = base_spatial:move(0, inter_margin, "left", "bottom")
+    end
+
+    local frame_spatial = Spatial.border(unpack(item_spatials))
+        :expand(outer_margin, outer_margin)
+
+    return frame_spatial, item_spatials
+end
+
+
+function Menu:draw(...)
+    self.frame:draw(...)
+
+    for i, node in pairs(self.item_nodes) do
+        node:draw(...)
     end
 end
 
-function VMenu:halt()
-    if self.up_tween then  self.up_tween:remove() end
-    if self.down_tween then self.down_tween:remove() end
-end
 
-function VMenu:draw(...)
-    self.outer_frame:draw(...)
-    for _, item in ipairs(self.ui_items) do
-        item:draw(...)
+function Menu:__update(dt)
+    for i, node in pairs(self.item_nodes) do
+        node:update(dt)
     end
 end
 
-function VMenu:update(...)
-    for _, item in ipairs(self.ui_items) do item:update(...) end
-end
 
-
-return VMenu
+return {
+    Item = function(name, value)
+        return Dictionary.create{name=name, value=value}
+    end,
+    Menu = Menu
+}

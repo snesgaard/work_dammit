@@ -9,7 +9,10 @@ function Node.create(f, ...)
             thread = {},
             event = {},
         },
-        __cleaners = {}
+        alive = true,
+        __cleaners = {},
+        __children = Dictionary.create(),
+        __parent = nil
     }
     if type(f) == "table" then
         setmetatable(f, {__index = Node})
@@ -17,10 +20,14 @@ function Node.create(f, ...)
         this = setmetatable(this, f)
         f.create(this, ...)
         --this.draw = f.draw
-    else
+    elseif type(f) == "function" then
         this = setmetatable(this, Node)
         f(this)
+    else
+        this = setmetatable(this, Node)
     end
+    this:set_order()
+    this:__make_order()
     return this
 end
 
@@ -28,12 +35,58 @@ function Node:destroy()
     for co, cleanup in pairs(self.__cleaners) do
         cleanup(true)
     end
-    if self.on_destoyed then self.on_destoyed() end
+    if self.on_destroyed then self.on_destroyed(self) end
+    self.alive = false
+    if self.__parent then
+        self.__parent.__children[self] = nil
+        self.__parent:__make_order()
+        self.__parent = nil
+    end
+end
+
+function Node:set_order(order_func)
+    local function temporal_order(a, b)
+        return self.__children[a] < self.__children[b]
+    end
+
+    self.__order_func = order_func or temporal_order
 end
 
 function Node:update(dt)
     Timer.update(dt, self.__group.tween)
+    self:__update(dt)
+
+    for _, node in ipairs(self.__node_order) do
+        node:update(dt)
+    end
 end
+
+function Node:draw(...)
+    self:__draw(...)
+
+    for _, node in ipairs(self.__node_order) do
+        node:draw(...)
+    end
+end
+
+function Node:child(...)
+    local node = Node.create(...)
+    self.__children[node] = love.timer.getTime()
+    node.__parent = self
+    self:__make_order()
+    return node
+end
+
+function Node:__make_order()
+    self.__node_order = self.__children
+        :keys()
+        :sort(self.__order_func)
+end
+
+function Node:__update(dt) end
+
+function Node:__draw() end
+
 
 function Node:fork(f, ...)
     -- Insert a reference to self as first argument
@@ -47,11 +100,21 @@ function Node:fork(f, ...)
     return co
 end
 
-function Node:join(co)
-    self.__group.thread[co] = nil
-    cleanup = self.__cleaners[co]
-    if cleanup then
-        cleanup(true)
+function Node:join(args)
+    co = args[1]
+    local kill_tweens = args.kill_tweens or true
+    if not co then
+        for co, cleanup in pairs(self.__cleaners) do
+            cleanup(kill_tweens)
+        end
+        self.__group.thread = {}
+        self.__cleaners = {}
+    else
+        self.__group.thread[co] = nil
+        cleanup = self.__cleaners[co]
+        if cleanup then
+            cleanup(kill_tweens)
+        end
     end
 end
 

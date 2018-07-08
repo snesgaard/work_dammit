@@ -21,9 +21,18 @@ function Spatial:copy()
 end
 
 function Spatial:move(x, y, align, valign)
-    align = align or "left"
-    x = align == "right" and x + self.w or x
-    y = valign == "bottom" and y + self.h or y
+    if align == "right" then
+        x = x + self.w
+    elseif align == "center" then
+        x = x + self.w / 2
+    end
+    --x = align == "right" and x + self.w or x
+    if valign == "bottom" then
+        y = y + self.h
+    elseif valign == "center" then
+        y = y + self.h / 2
+    end
+    --y = valign == "bottom" and y + self.h or y
     --return Spatial.create(self.pos:add(pos), self.size)
     return Spatial.create(self.x + x, self.y + y, self.w, self.h)
 end

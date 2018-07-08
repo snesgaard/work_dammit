@@ -38,7 +38,7 @@ end
 
 function animations.attack(sprite, dt)
     dt = sprite:play(dt, "fencer_dash/windup")
-    sprite.on_user("slash")
+    sprite.on_user("attack")
     dt = sprite:play(dt, "fencer_dash/attack")
     sprite.on_user("done")
     sprite:loop(dt, "fencer_dash/post_attack")
@@ -84,11 +84,10 @@ function fencer.init_visual(state, id)
 end
 
 function fencer.init_state(state, id)
-    return state
-        :set("max_health/" .. id, 10)
-        :set("agility/" .. id, 3)
-        :set("power/" .. id, 4)
-        :set("name/" .. id, "Fencer")
+    state.health.max[id] = 10
+    state.health.current[id] = 10
+    state.power[id] = 1
+    state.agility[id] = 3
 end
 
 return fencer

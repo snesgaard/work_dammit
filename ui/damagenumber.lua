@@ -5,44 +5,39 @@ local Spatial = require "spatial"
 local DamageNumber = {}
 DamageNumber.__index = DamageNumber
 
-function DamageNumber.create(number, master, type)
+function DamageNumber:create(number, master, type)
     local color = type == "heal" and {50, 255, 120, 0} or {255, 120, 50, 0}
-    local this = {
-        label = Label.create()
-            :set_text(tostring(number))
-            :set_color(unpack(color))
-            :set_font(Fonts(25))
-            :set_align("center")
-            :set_valign("center"),
-        scale = 5,
-        animation = Convoke(DamageNumber.animate),
-        master = master,
-    }
-    this.label.spatial = Spatial.create(0, 0, 0, 0)
+    for i, c in ipairs(color) do
+        color[i] = c / 255
+    end
+    self.label = Label.create()
+        :set_text(tostring(number))
+        :set_color(unpack(color))
+        :set_font(Fonts(25))
+        :set_align("center")
+        :set_valign("center")
+    self.scale = 5
+    self.master = master
+
+    self.label.spatial = Spatial.create(0, 0, 0, 0)
         :expand(200, 50)
-    this = setmetatable(this, DamageNumber)
-    this.animation(this)
-    return this
+    self:fork(DamageNumber.animate)
 end
 
-function DamageNumber.animate(handle, self)
-    local tween = handle:tween(0.15, {
+function DamageNumber.animate(self)
+    local tween = Timer.tween(0.15, {
         [self.label.color] = {[4] = 255},
         [self] = {scale = 1}
     })
-    handle:wait(tween)
-    handle:wait(1)
+    self:wait(tween)
+    self:wait(1)
     local spatial = self.label.spatial
-    tween = handle:tween(0.25, {
+    tween = Timer.tween(0.25, {
         [self.label.color] = {[4] = 0},
         [self.label.spatial] = spatial:move(0, -50)
     })
-    handle:wait(tween)
+    self:wait(tween)
     self:remove()
-end
-
-function DamageNumber:update(dt)
-    self.animation:update(dt)
 end
 
 function DamageNumber:remove()
@@ -57,19 +52,32 @@ end
 local DamageNumberServer = {}
 DamageNumberServer.__index = DamageNumberServer
 
-function DamageNumberServer.create()
-    local this = {
-        numbers = {},
-        x = {},
-        y = {},
-        time = {},
-        draworder = {}
-    }
-    return setmetatable(this, DamageNumberServer)
+function DamageNumberServer:create()
+    self.numbers = {}
+    self.x = {}
+    self.y = {}
+    self.time = {}
+    self.draworder = {}
+
+    nodes.game.event.on_damage:listen(function(info)
+        local id = info.defender
+        local dmg = info.damage
+
+        local pos = nodes.position:get_world(id) - vec2(0, 100)
+
+        self:number(dmg, pos.x, pos.y)
+    end)
+
+
+    nodes.game.event.on_heal:listen(function(info)
+        local pos = nodes.position:get_world(info.target) - vec2(0, 150)
+        self:number(info.heal, pos.x, pos.y, "heal")
+    end)
 end
 
 function DamageNumberServer:number(number, x, y, type)
-    number = DamageNumber.create(number, self, type)
+    number = process.create(DamageNumber, number, self, type)
+    --number = DamageNumber.create(number, self, type)
     self.numbers[number] = true
     self.time[number] = love.timer.getTime()
     self.x[number] = x + love.math.random(-10, 10)
@@ -87,7 +95,7 @@ function DamageNumberServer:remove(number)
     return self
 end
 
-function DamageNumberServer:update(dt)
+function DamageNumberServer:__update(dt)
     for number, _ in pairs(self.numbers) do
         number:update(dt)
     end

@@ -1,76 +1,41 @@
-local Convoke = require "convoke"
-local Event = require "event"
+local server = {}
+server.__index = server
 
-local Animation = {}
-Animation.__index = Animation
+function server.create(self)
+    self.queue = List.create()
+    self.args = List.create()
+    self.__wake = Event.create()
+    self.on_done = Event.create()
+    self.on_release = Event.create()
 
-function Animation.create(target, removal)
-    local this = {
-        __draw = target.draw,
-        __removal = removal,
-        on_finish = Event.create(),
-        on_terminate = Event.create()
-    }
-    this = setmetatable(this, Animation)
-    this.__convoke = Convoke(
-        function(...)
-            if target.animate then target.animate(...) end
-            this:remove()
-        end
-    )
-    return this
+    self:fork(self.process)
 end
 
-function Animation:run(...)
-    self.__convoke(self, ...)
-end
-
-function Animation:update(dt)
-    self.__convoke:update(dt)
-end
-
-function Animation:draw(...)
-    if self.__draw then self.__draw(self, ...) end
-end
-
-function Animation:remove()
-    if self.__removal then
-        self.__removal(self)
-        return self.on_terminate()
+function server:process()
+    if self.queue:size() == 0 then
+        self:wait(self.__wake)
     end
-end
 
-local Server = {__default_group = Dictionary.create()}
-Server.__index = Server
+    local f = self.queue:head()
+    self.queue = self.queue:body()
+    local args = self.args:head()
+    self.args = self.args:body()
 
-function Server.animate(target, group)
-    group = group or Server.__default_group
-    local function removal(anime)
-        Server.remove(anime, group)
+    function self.release()
+        self.on_done(f, unpack(args))
     end
-    local anime = Animation.create(target, removal)
-    group[anime] = true
-    return anime
+
+    f(self, unpack(args))
+
+    self:release()
+
+    return self:process()
 end
 
-function Server.update(dt, group)
-    group = group or Server.__default_group
-    for anime, _ in pairs(group) do
-        anime:update(dt)
-    end
-    return self
+function server:add(f, ...)
+    self.queue[#self.queue + 1] = f
+    self.args[#self.args + 1] = {...}
+    self.__wake()
 end
 
-function Server.remove(target, group)
-    group = group or Server.__default_group
-    group[target] = nil
-end
-
-function Server.draw(group)
-    group = group or Server.__default_group
-    for anime, _ in pairs(group) do
-        anime:draw()
-    end
-end
-
-return Server
+return server

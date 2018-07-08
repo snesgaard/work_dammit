@@ -1,53 +1,88 @@
 require "math"
 
-local Vec2Master = {}
-Vec2Master.__index = Vec2Master
+local vec2 = {}
+vec2.__index = vec2
 
-local Vec2 = {}
-Vec2.__index = Vec2
 
-function Vec2.__tostring(v)
-    return string.format("[%i, %i]", v[1], v[2])
+local function create(x, y)
+    local this = {x = x or 0, y = y or 0}
+    return setmetatable(this, vec2)
 end
 
-function Vec2Master.create(x, y)
-  return setmetatable({x, y}, Vec2)
+
+function vec2.__tostring(v)
+    return string.format("[%i, %i]", v.x, v.y)
 end
 
-function Vec2:__call(x, y)
-    return Vec2Master.create(x, y)
+
+function vec2:__unm()
+    return create(-self.x, -self.y)
 end
 
-function Vec2.add(v1, v2)
-  return Vec2Master.create(v1[1] + v2[1], v1[2] + v2[2])
+
+function vec2:__add(v2)
+    return create(self.x + v2.x, self.y + v2.y)
 end
 
-function Vec2.dot(v1, v2)
-  if type(v2) == "number" then
-    return Vec2Master.create(v2 * v1[1], v2 * v1[2])
-  else
-    return Vec2Master.create(v2[1] * v1[1], v2[2] * v1[2])
-  end
+
+function vec2:__sub(v2)
+    return create(self.x - v2.x, self.y - v2.y)
 end
 
-function Vec2.rotate(v1, a)
+
+function vec2.__mul(v1, v2)
+    if type(v1) == "table" and type(v2) == "table" then
+        return create(v1.x * v2.x, v1.y * v2.y)
+    elseif type(v1) == "table" then
+        return create(v1.x * v2, v1.y * v2)
+    else
+        return create(v1 * v2.x, v1 * v2.y)
+    end
+end
+
+
+function vec2.__div(v1, v2)
+    if type(v1) == "table" and type(v2) == "table" then
+        return create(v1.x / v2.x, v1.y / v2.y)
+    elseif type(v1) == "table" then
+        return create(v1.x / v2, v1.y / v2)
+    else
+        return create(v1 / v2.x, v1 / v2.y)
+    end
+end
+
+
+function vec2.rotate(v1, a)
     local cosa, sina = math.cos(a), math.sin(a)
-    local x = cosa * v1[1] - sina * v1[2]
-    local y = sina * v1[1] + cosa * v1[2]
-    return Vec2Master.create(x, y)
+    local x = cosa * v1.x - sina * v1.y
+    local y = sina * v1.x + cosa * v1.y
+    return create(x, y)
 end
 
-function Vec2.sub(v1, v2)
-  return v1:add(v2:dot(-1))
+
+function vec2.dot(v1, v2)
+    return v1.x * v2.x + v1.y * v2.y
 end
 
-function Vec2.length(v1)
-  return math.sqrt(v1[1] * v1[1] + v1[2] * v1[2])
+
+function vec2.cross(v1, v2)
+    return v1.x * v2.y - v1.y * v2.x
 end
 
-function Vec2.normalize(v1)
-  return Vec2.dot(v1, 1.0 / v1:length())
+
+function vec2.length(v1)
+  return math.sqrt(v1:dot(v1))
 end
 
-setmetatable(Vec2Master, Vec2Master)
-return Vec2Master.create(0,0)
+
+function vec2.normalize(v1)
+  return v1 * (1.0 / v1:length())
+end
+
+
+function vec2.unpack(v)
+    return v.x, v.y
+end
+
+
+return create
