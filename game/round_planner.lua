@@ -3,6 +3,10 @@ local action_planner = require "game/action_planner"
 local round_planner = {}
 round_planner.__index = round_planner
 
+function round_planner:__tostring()
+    return "Round Planner"
+end
+
 function round_planner.create(self)
     self.on_round_finish = Event.create()
 end
@@ -64,11 +68,13 @@ function round_planner.__plan(self, actors)
     end
 
     for _, id in ipairs(actors) do
+        self.active_actor = id
         local action, target = get_action(id)
         if action then
             nodes.animation:add(action.run, id, target)
             self:wait(nodes.animation.on_done)
         end
+        self.active_actor = nil
     end
 
     self.plan = nil
@@ -107,6 +113,19 @@ function round_planner:__update(dt)
 end
 
 function round_planner:draw()
+    if self.active_actor then
+        local id = self.active_actor
+        local anchor = nodes.position:get_world(id)
+        anchor = spatial(anchor.x, anchor.y, 0, 0)
+
+        local shape = spatial(0, 0, 100, 10)
+            :yalign(anchor, "center", "center")
+            :xalign(anchor, "center", "center")
+            :move(0, 20)
+
+        gfx.setColor(1, 1, 1)
+        gfx.rectangle("fill", shape:unpack())
+    end
     if self.action_planner then
         self.action_planner:draw()
     end

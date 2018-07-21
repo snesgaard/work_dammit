@@ -45,20 +45,35 @@ function Label:set_valign(valign)
     return self
 end
 
+function Label:get_text_size(max_width, text)
+    text = text or self.text
+    local width, lines = self.font:getWrap(text, max_width)
+    local height = self.font:getHeight() * #lines
+    return width, height
+end
+
 function Label:draw(x, y, r, sx, sy)
+    sx = sx or 1
+    sy = sy or sx
+
     local _x, _y, w, h = self.spatial:unpack()
+    local ew, eh = (sx - 1) * w, (sy - 1) * h
+    _x, _y, w, h = self.spatial
+        :expand(ew, eh)
+        :unpack()
     if self.font then
         gfx.setFont(self.font)
     else
         gfx.setFont()
     end
-    sx = sx or 1
-    sy = sy or sx
+
+    local tw, th = self:get_text_size(self.spatial.w)
+
     local font = gfx.getFont()
     if self.valign == "center" then
-        y = y + h * 0.5 - font:getHeight() * 0.5 * sy
+        y = y + h * 0.5 - th * 0.5 * sy
     elseif self.valign == "bottom" then
-        y = y + h - font:getHeight() * sy
+        y = y + h - th * sy
     end
 
     gfx.setColor(unpack(self.color))

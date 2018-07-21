@@ -6,7 +6,13 @@ local DamageNumber = {}
 DamageNumber.__index = DamageNumber
 
 function DamageNumber:create(number, master, type)
-    local color = type == "heal" and {50, 255, 120, 0} or {255, 120, 50, 0}
+    local type2color = {
+        heal = {50, 255, 120, 0},
+        default = {255, 120, 50, 0},
+        crit = {255, 50, 20, 0}
+    }
+
+    local color = type2color[type] or type2color.default
     for i, c in ipairs(color) do
         color[i] = c / 255
     end
@@ -16,7 +22,13 @@ function DamageNumber:create(number, master, type)
         :set_font(Fonts(25))
         :set_align("center")
         :set_valign("center")
+
+    local type2scale = {
+        default = 1,
+        crit = 1.5,
+    }
     self.scale = 5
+    self.end_scale = type2scale[type] or type2scale.default
     self.master = master
 
     self.label.spatial = Spatial.create(0, 0, 0, 0)
@@ -27,7 +39,7 @@ end
 function DamageNumber.animate(self)
     local tween = Timer.tween(0.15, {
         [self.label.color] = {[4] = 255},
-        [self] = {scale = 1}
+        [self] = {scale = self.end_scale}
     })
     self:wait(tween)
     self:wait(1)
@@ -64,8 +76,15 @@ function DamageNumberServer:create()
         local dmg = info.damage
 
         local pos = nodes.position:get_world(id) - vec2(0, 100)
-
-        self:number(dmg, pos.x, pos.y)
+        if info.miss then
+            self:number("Miss", pos.x, pos.y)
+        elseif info.shielded then
+            self:number("Void", pos.x, pos.y)
+        elseif info.crit then
+            self:number(dmg, pos.x, pos.y, "crit")
+        else
+            self:number(dmg, pos.x, pos.y)
+        end
     end)
 
 

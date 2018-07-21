@@ -1,7 +1,6 @@
 local Node = {}
 Node.__index = Node
 
-
 function Node.create(f, ...)
     local this = {
         __group = {
@@ -12,22 +11,31 @@ function Node.create(f, ...)
         alive = true,
         __cleaners = {},
         __children = Dictionary.create(),
-        __parent = nil
+        __parent = nil,
+        __threads2update = {
+            front = {},
+            back = {}
+        }
     }
     if type(f) == "table" then
         setmetatable(f, {__index = Node})
         f.__index = f
         this = setmetatable(this, f)
+        this:set_order()
+        this:__make_order()
         f.create(this, ...)
         --this.draw = f.draw
     elseif type(f) == "function" then
         this = setmetatable(this, Node)
+        this:set_order()
+        this:__make_order()
         f(this)
     else
         this = setmetatable(this, Node)
+        this:set_order()
+        this:__make_order()
     end
-    this:set_order()
-    this:__make_order()
+
     return this
 end
 
@@ -54,6 +62,16 @@ end
 
 function Node:update(dt)
     Timer.update(dt, self.__group.tween)
+    local f, b = self.__threads2update.front, self.__threads2update.back
+    self.__threads2update.front = b
+    self.__threads2update.back = f
+    for co, _ in pairs(f) do
+        f[co] = nil
+        local status, msg = coroutine.resume(co, dt)
+        if not status then
+            log.error(msg)
+        end
+    end
     self:__update(dt)
 
     for _, node in ipairs(self.__node_order) do
@@ -132,6 +150,12 @@ function Node:set_state(state, ...)
     end
 
     return self
+end
+
+function Node:wait_update(...)
+    local co = coroutine.running()
+    self.__threads2update.front[co] = true
+    return coroutine.yield(...)
 end
 
 function Node:wait(...)

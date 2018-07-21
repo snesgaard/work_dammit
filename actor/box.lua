@@ -17,7 +17,9 @@ end
 
 function BoxSprite:draw(x, y, r, sx, sy)
     gfx.setColor(unpack(self.color))
-    x = x + self.spatial.x
+    local amp = self.shake_data.amp
+    local phase = self.shake_data.phase
+    x = x + self.spatial.x + math.sin(phase) * amp
     y = y + self.spatial.y
     sx = sx or 1
     sy = sy or 1
@@ -39,7 +41,7 @@ function BoxSprite:attack_offset() return 0 end
 function BoxSprite:update() end
 
 function BoxSprite:set_color(r, g, b, a)
-    self.color = {r, g, b, a}
+    self.color = {r, g, b, a or 1}
     return self
 end
 
@@ -84,6 +86,7 @@ function box.init_state(state, id)
     state.health.current[id] = 8
     state.power[id] = 1
     state.agility[id] = 1
+    state.armor[id] = 3
     state.script[id] = ai
 end
 

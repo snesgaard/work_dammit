@@ -5,7 +5,7 @@ position.__index = position
 function position.create(this, center)
     this.actors = Dictionary.create()
     this.placements = Dictionary.create()
-    this.center = center or vec2(800, 600)
+    this.center = center or vec2(800, 700)
     return setmetatable(this, position)
 end
 

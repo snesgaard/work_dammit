@@ -1,11 +1,18 @@
 local target = require "ability/target"
 local sparkle = require "sfx/sparkle"
 
-local heal_effect = {}
+local HEAL = 3
 
 
 local heal = {}
-heal.__index = heal
+
+function heal.name()
+    return "Heal"
+end
+
+function heal.help_text(user)
+    return string.format("Restore %i health.", HEAL)
+end
 
 heal.target = {
     type = target.single,
@@ -21,11 +28,12 @@ function heal.test_setup(user, target)
 end
 
 function heal.run(handle, caster, target)
+    print("run")
     local sc = visual.sprite[caster]
     sc:set_animation("chant")
     handle:wait(0.5)
     sc:set_animation("cast")
-    nodes.game:heal(caster, target, 3)
+    nodes.game:heal(caster, target, HEAL)
     local pos = nodes.position:get_world(target) - vec2(0, 75)
     local s = nodes.sfx:child(sparkle):set_pos(pos)
     handle:wait(0.5)

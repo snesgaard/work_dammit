@@ -1,5 +1,10 @@
 local attack = require "ability/attack"
 local target = require "ability/target"
+local heal = require "ability/heal"
+local shield = require "ability/shield"
+local thunder = require "ability/thunder"
+local sap = require "ability/sap"
+local ui = require "ui"
 
 local Planner = {}
 Planner.__index = Planner
@@ -14,13 +19,12 @@ end
 
 function Planner.selection.enter(self, prev_state, user)
     self.user = user
-    self.pos = nodes.position:get_world(user) + vec2(-125, -400)
+    self.pos = nodes.position:get_world(user) + vec2(-125, -425)
     self:fork(Planner.selection.control)
 end
 
 function Planner:on_destroyed()
     for _, menu in ipairs(self.menus) do
-        menu:kill()
         menu:destroy()
     end
     if self.target then
@@ -31,6 +35,9 @@ end
 local control = {}
 
 function control.reset(self)
+    for _, m in pairs(self.menus) do
+        self.menus:destroy()
+    end
     self.menus = List.create()
     return Planner.selection.control(self)
 end
@@ -67,24 +74,21 @@ end
 
 function control.wait_for_item(self)
     local menu = self.menus:tail()
-    if not menu.alive then
-        menu:revive()
-    end
+    menu:enable()
     local event_args = self:wait(menu.on_select, menu.on_abort)
 
     if event_args.event == menu.on_select then
-        local index, item = unpack(event_args)
-        if istype(item.value, List) then
-            menu:kill()
-            self:spawn_menu(item.value)
+        local index, name, value = unpack(event_args)
+        if istype(value, List) then
+            self:spawn_menu(value)
             return control.wait_for_item(self)
         else
-            menu:kill()
-            return control.select_target(self, item.value)
+            return control.select_target(self, value)
         end
     elseif self.menus:size() > 1 then
+        self.menus:tail():destroy()
         self.menus = self.menus:erase()
-        self.menus:tail():revive()
+        self.menus:tail():enable()
         return control.wait_for_item(self)
     else
         return control.wait_for_item(self)
@@ -93,10 +97,18 @@ end
 
 function Planner.selection.control(self)
     local main_items = List.create(
-        ui.menu.Item("Attack", attack),
-        ui.menu.Item("Pass", nil)
-        --ui.menu.Item("Attack2", attack)
+        ui.menu.item("Attack", attack),
+        ui.menu.item("Heal", heal),
+        ui.menu.item("Shield", shield),
+        ui.menu.item("Thunder", thunder),
+        ui.menu.item("Sap", sap),
+        ui.menu.item("Pass", nil)
     )
+
+    self.tip = self:child(ui.textbox)
+        :set_text("Foobar")
+        :set_text("Deal 1 damage to a foe.")
+
 
     self:spawn_menu(main_items)
 
@@ -105,14 +117,27 @@ end
 
 
 function Planner:spawn_menu(items)
-    local node = process.create(ui.menu.Menu, items)
+    local node = self:child(ui.menu)
+        :set_items(items)
+        :set_window_size(6)
+        :set_selected(1)
+    local function help_callback(index, name, action)
+        if action ~= nil and action.help_text then
+            self.tip:set_text(action.help_text(self.user))
+        elseif action then
+            self.tip:set_text("No help.")
+        else
+            self.tip:set_text("Skip your turn.")
+        end
+    end
+    help_callback(node:get_selected_item())
+    node.on_change:listen(help_callback)
     self.menus = self.menus:insert(node)
 end
 
-
 function Planner:__update(dt)
     for _, menu in pairs(self.menus) do
-        menu:update(dt)
+        --menu:update(dt)
     end
     if self.target then self.target:update(dt) end
 end
@@ -121,7 +146,17 @@ end
 function Planner:draw()
     local x, y = self.pos:unpack()
     for i, menu in ipairs(self.menus) do
-        menu:draw(x + 50 * i, y + i * 10)
+        local s = menu:get_spatial()
+        menu:draw(x + 50 * i, y + i * 10 - 150)
+    end
+    if self.tip then
+        local anchor = self.menus:head():get_spatial()--Spatial.create(gfx.getWidth() / 2, 0, 0, 0)
+        local pos = self.tip:get_spatial()
+            :xalign(anchor, "center", "center")
+            :yalign(anchor, "top", "bottom")
+            :move(0, -3)
+        local i = #self.menus
+        self.tip:draw(pos.x + 50 * i + x, pos.y + y + i * 10 - 150)
     end
     if self.target then
         self.target:draw()

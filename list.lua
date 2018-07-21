@@ -100,6 +100,14 @@ function list:map(f)
   return ret
 end
 
+function list:argmap(f)
+    local ret = list.create()
+    for i = 1, #self do
+        ret[i] = f(i, self[i])
+    end
+    return ret
+end
+
 function list:scan(f, seed)
     local ret = list.create()
 

@@ -3,7 +3,7 @@ local dict = require "dictionary"
 local Event      = require "event"
 local Spatial    = require "spatial"
 
-
+local rng = love.math.random
 
 local Sprite = {}
 Sprite.__index = Sprite
@@ -15,7 +15,9 @@ end
 function Sprite:draw(x, y, r, sx, sy)
     if not self.__draw_frame then return end
     gfx.setColor(unpack(self.color))
-    x = x + self.spatial.x
+    local amp = self.shake_data.amp
+    local phase = self.shake_data.phase
+    x = x + self.spatial.x + math.sin(phase) * amp
     y = y + self.spatial.y
     sx = sx or 1
     sy = sy or 1
@@ -40,6 +42,39 @@ function Sprite:play(dt, frame_key)
     end
 
     return dt
+end
+
+function Sprite:hide()
+    Timer.tween(
+        0.4,
+        {
+            [self.color] = {[4] = 0}
+        }
+    )
+end
+
+function Sprite:show()
+    Timer.tween(
+        0.4,
+        {
+            [self.color] = {[4] = 1}
+        }
+    )
+end
+
+function Sprite:shake(strong)
+    if self.shake_data.tween then
+        self.shake_data.tween:remove()
+    end
+    local s = rng() > 0.5 and 1 or -1
+    self.shake_data.amp = strong and 15 or 5
+    self.shake_data.phase = s * math.pi * 8
+    self.shake_data.tween = Timer.tween(
+        0.4,
+        {
+            [self.shake_data] = {amp = 0, phase = 0},
+        }
+    )
 end
 
 function Sprite:loop(dt, frame_key)
@@ -84,6 +119,11 @@ function Sprite:attack_offset()
     return 0
 end
 
+function Sprite:set_color(...)
+    self.color = {...}
+    return self
+end
+
 function Sprite.create(atlas)
     local this = {
         time = 0,
@@ -92,10 +132,11 @@ function Sprite.create(atlas)
         active = nil,
         origin = 'origin',
         spatial = Spatial.create(),
-        color = {255, 255, 255, 255},
+        color = {1, 1, 1, 1},
         scale = 2,
         on_user = Event.create(),
         on_loop = Event.create(),
+        shake_data = {amp = 0, phase = 0}
     }
     return setmetatable(this, Sprite)
 end

@@ -5,7 +5,6 @@ log.outfile = '/tmp/game.log'
 Atlas = require "atlas"
 Timer = require "modules.knife.timer"
 Event = require "event"
-event = require "event"
 List = require "list"
 Dictionary = require "dictionary"
 Spatial = require "spatial"
@@ -15,8 +14,11 @@ id_gen = require "id_gen"
 vec2 = require "vec2"
 math = require "math"
 
+
 dict = Dictionary.create
 list = List.create
+event = Event.create
+spatial = Spatial.create
 --Sprite = require "animation/sprite"
 
 function reload(p)

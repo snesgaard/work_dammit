@@ -86,8 +86,8 @@ end
 function fencer.init_state(state, id)
     state.health.max[id] = 10
     state.health.current[id] = 10
-    state.power[id] = 1
-    state.agility[id] = 3
+    state.power[id] = 3
+    state.agility[id] = 5
 end
 
 return fencer

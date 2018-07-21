@@ -1,5 +1,6 @@
 lume = require "modules/lume"
 local lurker = require "modules/lurker"
+game = require "game"
 
 function reload(p)
     package.loaded[p] = nil
@@ -11,19 +12,26 @@ function love.load(arg)
     if not nodes.holder then
         --love.window.setMode(500, 800)
     end
-
+    game.setup.init_battle()
     nodes.holder = process.create()
 
     for _, path in ipairs(arg) do
         local p = path:gsub('.lua', '')
         local t = reload(p)
-        nodes.holder:child(t)
+        local n = nodes.holder:child(t)
+        if n.test then
+            n:fork(n.test)
+        end
     end
 
     function reload_scene()
         love.load(arg)
     end
 
+    function lurker.preswap(f)
+        f = f:gsub('.lua', '')
+        package.loaded[f] = nil
+    end
     function lurker.postswap(f)
         reload_scene()
     end
@@ -34,6 +42,7 @@ local do_update = true
 function love.update(dt)
     lurker:update()
     if do_update then
+        Timer.update(dt)
         for _, n in pairs(nodes) do
             n:update(dt)
         end

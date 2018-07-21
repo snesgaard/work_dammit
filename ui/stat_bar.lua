@@ -47,8 +47,8 @@ function StatBar.create(self, id)
 end
 
 function StatBar:update_stat()
-    local max_hp = nodes.game.actor.health.max[self.id]
-    local hp = nodes.game.actor.health.current[self.id]
+    local max_hp = nodes.game.actor.health.max[self.id] or 1
+    local hp = nodes.game.actor.health.current[self.id] or 1
     self:set_value(hp, max_hp)
 end
 
@@ -72,7 +72,7 @@ function StatBar:set_spatial(root)
 end
 
 function StatBar:get_spatial()
-    return Spatial.border(
+    return Spatial.join(
         self.name_label.spatial, self.value_label.spatial, self.bar.spatial
     )
 end

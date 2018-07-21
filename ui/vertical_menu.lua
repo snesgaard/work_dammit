@@ -11,7 +11,7 @@ Item.selected = {}
 Item.normal = {}
 
 function Item:create(text)
-    self.frame = Frame.create():set_color(255, 255, 255)
+    self.frame = Frame.create():set_color(1, 1, 1)
     self.label = Label.create():set_text(text):set_font(Fonts(14))
 end
 
@@ -32,7 +32,7 @@ end
 
 
 function Item.selected.enter(self)
-    self.frame.color = {255, 255, 255}
+    self.frame.color = {1, 1, 1}
     self.frame:set_spatial(self.spatial:copy())
     if not self.animation then
          self.animation = self:fork(self.selected.animate)
@@ -43,18 +43,18 @@ function Item.selected.animate(self)
     local spatial = Spatial.create(self.spatial:unpack())
     local tween = Timer.tween(0.1, {
         [self.frame.spatial] = spatial:expand(5, 5),
-        [self.frame.color] = {255, 255, 0}
+        [self.frame.color] = {1, 1, 0}
     })
     self:wait(tween)
     tween = Timer.tween(0.1, {
         [self.frame.spatial] = spatial,
-        [self.frame.color] = {255, 255, 125}
+        [self.frame.color] = {1, 1, 0.45}
     })
     self:wait(tween)
     while true do
-        tween = Timer.tween(0.5, {[self.frame.color] = {255, 255, 50}})
+        tween = Timer.tween(0.5, {[self.frame.color] = {1, 1, 0.2}})
         self:wait(tween)
-        tween = Timer.tween(0.5, {[self.frame.color] = {255, 255, 125}})
+        tween = Timer.tween(0.5, {[self.frame.color] = {1, 1, 0.45}})
         self:wait(tween)
         self:wait(0.5)
     end
@@ -67,7 +67,7 @@ function Item.normal.enter(self)
         self.animation = nil
     end
 
-    self.frame.color = {255, 255, 255}
+    self.frame.color = {1, 1, 1}
     self.frame:set_spatial(self.spatial:copy())
 end
 
@@ -79,8 +79,9 @@ Menu.__index = Menu
 function Menu:create(items)
     self.on_select = Event.create()
     self.on_abort = Event.create()
+    self.on_change = Event.create()
 
-    self.frame = Frame.create():set_color(150, 150, 150)
+    self.frame = Frame.create():set_color(0.55, 0.55, 0.55)
     local frame_spatial, item_spatials = self.structure(items)
     self.frame:set_spatial(frame_spatial)
 
@@ -116,7 +117,6 @@ function Menu:kill()
     self.contol_co = nil
 end
 
-
 function Menu.controls(self)
     local key = self:wait(nodes.root.keypressed)
 
@@ -141,6 +141,7 @@ function Menu.controls(self)
     if prev_active ~= self.active then
         self.item_nodes[prev_active]:set_state(Item.normal)
         self.item_nodes[self.active]:set_state(Item.selected)
+        self.on_change(self:get_active())
     end
 
     if self.alive then
@@ -148,6 +149,14 @@ function Menu.controls(self)
     end
 end
 
+function Menu:monitor_active(callback)
+    callback(self:get_active())
+    return self.on_change:listen(callback)
+end
+
+function Menu:get_active()
+    return self.active, self.items[self.active].value
+end
 
 function Menu.structure(items)
     local base_spatial = Spatial.create(0, 0, 150, 30)
@@ -176,13 +185,15 @@ function Menu:draw(...)
     end
 end
 
+function Menu:get_spatial()
+    return self.frame:get_spatial()
+end
 
 function Menu:__update(dt)
     for i, node in pairs(self.item_nodes) do
         node:update(dt)
     end
 end
-
 
 return {
     Item = function(name, value)
