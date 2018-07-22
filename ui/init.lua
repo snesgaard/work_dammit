@@ -6,5 +6,6 @@ return {
     stat_bar = require "ui/stat_bar",
     menu = require "ui/menu",
     damage_number = require "ui/damagenumber",
-    turn_row = require "ui/turn_row"
+    turn_row = require "ui/turn_row",
+    font = require "ui/fonts"
 }

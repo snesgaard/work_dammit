@@ -107,21 +107,9 @@ function Planner.selection.control(self)
         :map(ability2item)
         :insert(ui.menu.item("Pass", nil))
 
-    --[[
-    local main_items = List.create(
-        ui.menu.item("Attack", attack),
-        ui.menu.item("Heal", heal),
-        ui.menu.item("Shield", shield),
-        ui.menu.item("Thunder", thunder),
-        ui.menu.item("Sap", sap),
-        ui.menu.item("Pass", nil)
-    )
-    ]]--
-
     self.tip = self:child(ui.textbox)
         :set_text("Foobar")
         :set_text("Deal 1 damage to a foe.")
-
 
     self:spawn_menu(main_items)
 

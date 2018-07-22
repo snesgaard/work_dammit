@@ -119,6 +119,11 @@ function labelbox:set_spatial(spatial)
     return self
 end
 
+function labelbox:set_font(font)
+    self.ui.label.text:set_font(font)
+    return self:structure()
+end
+
 function labelbox:__draw(x, y)
     x = (x or 0) + self.pos.x
     y = (y or 0) + self.pos.y
