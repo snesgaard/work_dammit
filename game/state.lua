@@ -13,7 +13,8 @@ local function create_actor_state()
         armor = dict{},
         shield = dict{},
         charge = dict{},
-        script = dict{}
+        script = dict{},
+        name = dict{}
     }
 end
 

@@ -39,7 +39,7 @@ function row:add(im, name)
             :set_text(name)
         self.offsets[index] = vec2(0, 1000)
         local tween = Timer.tween(
-            0.25,
+            0.1,
             {
                 [self.offsets[index]] = vec2(0, 0)
             }
@@ -55,7 +55,7 @@ function row:pop()
         local index = #self.items
         local ui = self.items[index]
         local tween = Timer.tween(
-            0.25,
+            0.1,
             {
                 [self.offsets[index]] = vec2(1000, 0)
             }
@@ -100,7 +100,7 @@ end
 
 function row:structure()
     local prev = spatial(
-        gfx.getWidth() - 50 + self.margin, gfx.getHeight() / 2 + 25, 0, 0
+        gfx.getWidth() - 50 + self.margin, gfx.getHeight() / 2 - 25, 0, 0
     )
 
     local struct = list()

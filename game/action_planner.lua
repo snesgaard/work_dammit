@@ -96,6 +96,18 @@ function control.wait_for_item(self)
 end
 
 function Planner.selection.control(self)
+    local ability = nodes.game:get_stat("ability", self.user) or list()
+
+    local function ability2item(a)
+        local name = a.name and a.name() or "Unknown"
+        return ui.menu.item(name, a)
+    end
+
+    local main_items = ability
+        :map(ability2item)
+        :insert(ui.menu.item("Pass", nil))
+
+    --[[
     local main_items = List.create(
         ui.menu.item("Attack", attack),
         ui.menu.item("Heal", heal),
@@ -104,6 +116,7 @@ function Planner.selection.control(self)
         ui.menu.item("Sap", sap),
         ui.menu.item("Pass", nil)
     )
+    ]]--
 
     self.tip = self:child(ui.textbox)
         :set_text("Foobar")

@@ -1,5 +1,6 @@
 local Atlas = require "atlas"
 local Sprite = require "animation/sprite"
+local ability = require "ability"
 
 local fencer = {}
 fencer.__index = fencer
@@ -79,8 +80,7 @@ function fencer.init_visual(state, id)
     state.atlas[atlas_path] = atlas
     state.atlas[icon_path] = icon_atlas
     state.sprite[id] = sprite
-    --state.icon.color[id] = icon_atlas:icon("fencer_large")
-    --state.icon.bw[id] = icon_atlas:icon("fencer_bw")
+    state.icon[id] = gfx.newImage("art/fencer_icon.png")
 end
 
 function fencer.init_state(state, id)
@@ -88,6 +88,10 @@ function fencer.init_state(state, id)
     state.health.current[id] = 10
     state.power[id] = 3
     state.agility[id] = 5
+    state.name[id] = "Fencer"
+    state.ability[id] = list(
+        ability.attack, ability.heal, ability.sap
+    )
 end
 
 return fencer

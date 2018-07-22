@@ -50,6 +50,7 @@ function love.draw()
 
     nodes.battle_planner:draw()
     nodes.round_planner:draw()
+    nodes.turn:draw()
 end
 
 local keyrepeaters = {}

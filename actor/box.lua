@@ -88,6 +88,12 @@ function box.init_state(state, id)
     state.agility[id] = 1
     state.armor[id] = 3
     state.script[id] = ai
+    state.name[id] = "Normal Box"
+    visual.icon[id] = function(x, y, w, h)
+        gfx.setColor(1, 1, 1)
+        local margin = vec2(15, 5)
+        gfx.rectangle("fill", x + 5, y + margin.y, w - margin.x, h - margin.y)
+    end
 end
 
 return box

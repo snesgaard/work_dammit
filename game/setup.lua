@@ -28,6 +28,7 @@ function setup.init_battle()
         sprite = {},
         ui = {},
         atlas = {},
+        icon = {},
     }
 
     nodes.game.event.on_damage:listen(function(info)

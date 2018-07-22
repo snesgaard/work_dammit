@@ -12,7 +12,8 @@ local function attack_animation(self)
 end
 
 local function draw(self, x, y, r, sx, sy)
-    gfx.setColor(unpack(self.color))
+    local r, g, b, a = unpack(self.color)
+    gfx.setColor(0.2 * r, 1 * g, 0.6 * b, a)
     local amp = self.shake_data.amp
     local phase = self.shake_data.phase
     x = x + self.spatial.x + math.sin(phase) * amp
@@ -28,7 +29,7 @@ end
 
 local function create_sprite()
     local sprite = sprite.create()
-    sprite:set_color(0.2, 1, 0.6)
+    --sprite:set_color(0.2, 1, 0.6)
     sprite.draw = draw
     sprite:register("attack", attack_animation)
     return sprite
@@ -90,9 +91,15 @@ function healbox.init_state(state, id)
     state.health.max[id] = 4
     state.health.current[id] = 4
     state.power[id] = 0
-    state.agility[id] = 1
+    state.agility[id] = 2
     state.armor[id] = 1
     state.script[id] = ai
+    state.name[id] = "Healer Box"
+    visual.icon[id] = function(x, y, w, h)
+        gfx.setColor(0.2, 1, 0.6)
+        local margin = vec2(15, 5)
+        gfx.rectangle("fill", x + 5, y + margin.y, w - margin.x, h - margin.y)
+    end
 end
 
 return healbox

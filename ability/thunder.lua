@@ -1,7 +1,7 @@
 local target = require "ability/target"
 local sfx = require "sfx/thunder"
 
-local DAMAGE = 1
+local DAMAGE = 10
 
 local thunder = {}
 

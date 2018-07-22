@@ -22,7 +22,9 @@ function window:__get_limits()
 end
 
 function window:get_range()
-    return self.pos, self.pos + self.size - 1
+    local min = math.clamp(self.pos, 1, self.max)
+    local max = math.clamp(self.pos + self.size - 1, 1, self.max)
+    return min, max
 end
 
 function window:move(dx)

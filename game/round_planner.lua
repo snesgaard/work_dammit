@@ -67,13 +67,26 @@ function round_planner.__plan(self, actors)
         end
     end
 
-    for _, id in ipairs(actors) do
+    actors = actors:filter(function(id)
+        return nodes.game:is_alive(id)
+    end)
+
+    for _, id in ipairs(actors:reverse()) do
+        local name = nodes.game:get_stat("name", id) or "Ehh"
+        local icon = visual.icon[id] or gfx.newImage("art/armor.png")
+        nodes.turn:add(icon, name)
+        nodes.turn:set_selected(#actors)
+    end
+
+    for i, id in ipairs(actors) do
         self.active_actor = id
         local action, target = get_action(id)
         if action then
             nodes.animation:add(action.run, id, target)
             self:wait(nodes.animation.on_done)
         end
+        nodes.turn:pop()
+        nodes.turn:set_selected(#actors - i)
         self.active_actor = nil
     end
 
@@ -123,7 +136,7 @@ function round_planner:draw()
             :xalign(anchor, "center", "center")
             :move(0, 20)
 
-        gfx.setColor(1, 1, 1)
+        gfx.setColor(1.0, 1.0, 0.1, 0.4)
         gfx.rectangle("fill", shape:unpack())
     end
     if self.action_planner then
