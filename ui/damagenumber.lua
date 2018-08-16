@@ -1,6 +1,7 @@
 local Label = require "ui/label"
 local Fonts = require "ui/fonts"
 local Spatial = require "spatial"
+local statup = require "sfx/stat_up"
 
 local DamageNumber = {}
 DamageNumber.__index = DamageNumber
@@ -25,7 +26,7 @@ function DamageNumber:create(number, master, type)
 
     local type2scale = {
         default = 1,
-        crit = 1.5,
+        crit = 1,
     }
     self.scale = 5
     self.end_scale = type2scale[type] or type2scale.default
@@ -81,6 +82,7 @@ function DamageNumberServer:create()
         elseif info.shielded then
             self:number("Void", pos.x, pos.y)
         elseif info.crit then
+            dmg = tostring(dmg) .. "\nCritical"
             self:number(dmg, pos.x, pos.y, "crit")
         else
             self:number(dmg, pos.x, pos.y)
@@ -92,6 +94,24 @@ function DamageNumberServer:create()
         local pos = nodes.position:get_world(info.target) - vec2(0, 150)
         self:number(info.heal, pos.x, pos.y, "heal")
     end)
+
+    self.icons = {
+        armor = gfx.newImage("art/armor.png"),
+        power = gfx.newImage("art/power.png"),
+        agility = gfx.newImage("art/agility.png"),
+    }
+
+    for _, stat in pairs({"armor", "power", "agility"}) do
+        nodes.game:monitor_stat(stat, function(id, value, prev)
+            if value == prev then return end
+            local im = self.icons[stat]
+            local pos = nodes.position:get_world(id)
+            self:child(statup, value > prev)
+                :set_im(im)
+                :set_origin(pos - vec2(0, 50))
+                :set_value(math.abs(value - prev))
+        end)
+    end
 end
 
 function DamageNumberServer:number(number, x, y, type)
@@ -132,7 +152,7 @@ function DamageNumberServer:get_draworder()
     return order
 end
 
-function DamageNumberServer:draw(x, y, r)
+function DamageNumberServer:__draw(x, y, r)
     x = x or 0
     y = y or 0
     for _, number in ipairs(self.draworder) do

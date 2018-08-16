@@ -75,6 +75,13 @@ function Spatial:set_size(w, h)
     return Spatial.create(self.x, self.y, w or self.w, h or self.h)
 end
 
+function Spatial:corner(x, y)
+    local dx = x == "right" and self.w or 0
+    local dy = y == "bottom" and self.h or 0
+
+    return Vec2(self.x + dx, self.y + dy)
+end
+
 function Spatial:xalign(src, dst_side, src_side, margin)
     local default_map = "left"
     margin = margin or 0

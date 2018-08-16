@@ -29,7 +29,6 @@ end
 
 local function create_sprite()
     local sprite = sprite.create()
-    --sprite:set_color(0.2, 1, 0.6)
     sprite.draw = draw
     sprite:register("attack", attack_animation)
     return sprite
@@ -80,7 +79,7 @@ healbox.__index = box
 healbox = setmetatable(healbox, healbox)
 
 function healbox.__tostring()
-    return "Box"
+    return "HealBox"
 end
 
 function healbox.init_visual(state, id)

@@ -19,6 +19,7 @@ function setup.init_battle()
 
     nodes.game = process.create(state)
     nodes.damage_number = process.create(ui.damage_number)
+    nodes.char_monitor = process.create(ui.char_monitor)
     nodes.sfx = process.create()
 
     nodes.charge = process.create(sfx.manager.charge)

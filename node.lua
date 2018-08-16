@@ -105,7 +105,6 @@ function Node:__update(dt) end
 
 function Node:__draw() end
 
-
 function Node:fork(f, ...)
     -- Insert a reference to self as first argument
     local co = coroutine.create(f)

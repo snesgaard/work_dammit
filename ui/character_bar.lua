@@ -142,7 +142,18 @@ function CharacterBar:get_spatial()
 
 end
 
+function CharacterBar:hide()
+    self.hidden = true
+    return self
+end
+
+function CharacterBar:show()
+    self.hidden = false
+    return self
+end
+
 function CharacterBar:draw(x, y)
+    if self.hidden then return end
     x = x or 0
     y = y or 0
     self.bg_frame:draw(x, y)

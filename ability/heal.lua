@@ -28,7 +28,6 @@ function heal.test_setup(user, target)
 end
 
 function heal.run(handle, caster, target)
-    print("run")
     local sc = visual.sprite[caster]
     sc:set_animation("chant")
     handle:wait(0.5)

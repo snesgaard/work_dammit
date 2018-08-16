@@ -2,7 +2,6 @@ game = require "game"
 
 function love.load(arg)
     gfx.setBackgroundColor(0, 0, 0, 0)
-
     game.setup.init_battle()
     nodes.holder = process.create()
 
@@ -10,9 +9,9 @@ function love.load(arg)
     local scene = arg:head()
     if scene then
         local p = scene:gsub('.lua', '')
+        print("loading", p)
         local t = reload(p)
         nodes.holder:child(t)
-
         nodes.battle_planner:begin()
     end
 end

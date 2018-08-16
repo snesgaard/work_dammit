@@ -11,7 +11,7 @@ end
 
 
 function vec2.__tostring(v)
-    return string.format("[%i, %i]", v.x, v.y)
+    return string.format("[%f, %f]", v.x, v.y)
 end
 
 
@@ -26,7 +26,11 @@ end
 
 
 function vec2:__sub(v2)
-    return create(self.x - v2.x, self.y - v2.y)
+    if type(v2) == "number" then
+        return create(self.x - v2, self.y - v2)
+    else
+        return create(self.x - v2.x, self.y - v2.y)
+    end
 end
 
 
@@ -49,6 +53,11 @@ function vec2.__div(v1, v2)
     else
         return create(v1 / v2.x, v1 / v2.y)
     end
+end
+
+
+function vec2.floor(v)
+    return create(math.floor(v.x), math.floor(v.y))
 end
 
 
@@ -79,10 +88,30 @@ function vec2.normalize(v1)
   return v1 * (1.0 / v1:length())
 end
 
-
 function vec2.unpack(v)
     return v.x, v.y
 end
 
+function vec2.clamp(v, low, up)
+    return create(
+        math.clamp(v.x, low.x, up.x), math.clamp(v.y, low.y, up.y)
+    )
+end
+
+function vec2.max(v1, v2)
+    if type(v2) == "number" then
+        return create(math.max(v1.x, v2), math.max(v1.y, v2))
+    else
+        return create(math.max(v1.x, v2.x), math.max(v1.y, v2.y))
+    end
+end
+
+function vec2.min(v1, v2)
+    if type(v2) == "number" then
+        return create(math.min(v1.x, v2), math.min(v1.y, v2))
+    else
+        return create(math.min(v1.x, v2.x), math.min(v1.y, v2.y))
+    end
+end
 
 return create

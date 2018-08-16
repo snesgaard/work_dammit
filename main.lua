@@ -1,6 +1,6 @@
 gfx = love.graphics
 log   = require "modules.log"
-log.outfile = '/tmp/game.log'
+--log.outfile = '/tmp/game.log'
 
 Atlas = require "atlas"
 Timer = require "modules.knife.timer"
@@ -70,6 +70,7 @@ end
 
 function root_node(self)
     self.keypressed = Event.create()
+    self.keyreleased = Event.create()
 end
 
 nodes = {}
@@ -88,7 +89,9 @@ function love.load(arg)
     local entrymap = {
         battle = "designer/battle",
         sfx = "designer/sfx",
-        ability = "designer/ability"
+        ability = "designer/ability",
+        level = "designer/level",
+        sprite = "designer/sprite"
     }
 
     entry = entrymap[entry]
@@ -117,7 +120,7 @@ function love.keypressed(key, scancode, isrepeat)
 end
 
 local function keyreleased(key, scancode)
-
+    nodes.root.keyreleased(key, scancode, isrepeat)
 end
 
 function love.keyreleased(key, scancode)

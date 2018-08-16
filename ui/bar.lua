@@ -28,7 +28,7 @@ function Bar:draw(x, y)
     x = self.spatial.x + x
     y = self.spatial.y + y
     local w, h = self.spatial.w, self.spatial.h
-    gfx.setColor(0, 0, 0, 100)
+    gfx.setColor(0, 0, 0, 0.4)
     gfx.rectangle("fill", x, y, w, h)
     gfx.setColor(255, 255, 255)
     local s = self.value / self.max_value

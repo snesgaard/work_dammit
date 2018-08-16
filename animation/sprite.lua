@@ -119,8 +119,8 @@ function Sprite:attack_offset()
     return 0
 end
 
-function Sprite:set_color(...)
-    self.color = {...}
+function Sprite:set_color(r, g, b, a)
+    self.color = {r or 1, g or 1, b or 1, a or 1}
     return self
 end
 
