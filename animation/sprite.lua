@@ -36,13 +36,14 @@ function Sprite:play(dt, frame_key)
         self.time = self.time + f.time
         self.__on_frame_progress(self, i, f)
         while self.time > 0 do
-            self, dt = coroutine.yield()
+            dt = coroutine.yield()
             self.time = self.time - dt
         end
     end
 
     return dt
 end
+
 
 function Sprite:hide()
     Timer.tween(
@@ -60,6 +61,34 @@ function Sprite:show()
             [self.color] = {[4] = 1}
         }
     )
+end
+
+function Sprite:get_hitbox(key, x, y)
+    if not self.__draw_frame then return end
+
+    local frame = self.__draw_frame
+
+    local function get_center()
+        local origin = frame.hitbox[self.origin]
+        if origin then
+            return origin.cx, origin.cy
+        else
+            return 0, 0
+        end
+    end
+
+    local cx, cy = get_center()
+
+    local box = frame.hitbox[key]
+
+    if box then
+        return spatial(box.x, box.y, box.w, box.h)
+            :move(-cx, -cy)
+            :scale(self.scale, self.scale)
+            :move(x, y)
+    else
+        return
+    end
 end
 
 function Sprite:shake(strong)
@@ -110,7 +139,7 @@ end
 
 function Sprite:update(dt)
     if self.active then
-        self.active(self, dt)
+        self.active(dt)
     end
     return self
 end
@@ -131,12 +160,14 @@ function Sprite.create(atlas)
         __states = {},
         active = nil,
         origin = 'origin',
+        mirror = 1,
         spatial = Spatial.create(),
         color = {1, 1, 1, 1},
         scale = 2,
         on_user = Event.create(),
         on_loop = Event.create(),
-        shake_data = {amp = 0, phase = 0}
+        shake_data = {amp = 0, phase = 0},
+        __hitbox_cache = {}
     }
     return setmetatable(this, Sprite)
 end

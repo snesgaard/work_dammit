@@ -28,6 +28,15 @@ function Spatial:pos()
     return self.x, self.y
 end
 
+function Spatial:scale(sx, sy)
+    sx = sx or 1
+    sy = sy or sx
+
+    return Spatial.create(
+        self.x * sx, self.y * sy, self.w * sx, self.h * sy
+    )
+end
+
 function Spatial:move(x, y, align, valign)
     if align == "right" then
         x = x + self.w
