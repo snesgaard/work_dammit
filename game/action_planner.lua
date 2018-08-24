@@ -48,18 +48,23 @@ function control.select_target(self, action)
     end
 
     local t = action.target.type
+
     local placement = nodes.position.placements
-    local targets = action.target.candidates(placement, self.user)
-        :values()
-        :sort(function(a, b)
-            return nodes.position:get(a) > nodes.position:get(b)
+
+    local function sort_by_position(a, b)
+        return nodes.position:get(a) > nodes.position:get(b)
+    end
+
+    local target_batches = list(action.target.candidates(placement, self.user))
+        :map(function(targets)
+            return targets:values():sort(sort_by_position)
         end)
 
-    if targets:size() == 0 then
+    if target_batches:size() == 0 then
         -- Do a beep thing that signals invalid stuff
         return control.wait_for_item(self)
     end
-    self.target = process.create(t, targets)
+    self.target = process.create(t, target_batches:unpack())
 
     local event_args = self:wait(self.target.on_select, self.target.on_abort)
     self.target:destroy()

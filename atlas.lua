@@ -124,9 +124,16 @@ function Atlas:__tostring()
     return string.format("Atlas <%s>", self.path)
 end
 
+local function read_file(path)
+    local info = love.filesystem.getInfo(path .. '.lua')
+    return info and require(path) or {}
+end
+
 function Atlas.create(path)
     local sheet = gfx.newImage(path .. "/atlas.png")
     local index = require (path   .. "/index")
+
+    local atlas_hitbox_mask = read_file(path .. "/hitbox")
 
     local this = {
         frames = Dictionary.create(),
@@ -141,6 +148,8 @@ function Atlas.create(path)
 
     local dim = {sheet:getDimensions()}
     for name, positional in pairs(index) do
+        local frame_hitbox_mask = atlas_hitbox_mask[name] or {}
+
         local data_path = path .. '/' .. positional.data
         local data = json.decode(love.filesystem.read( data_path ))
         local frames = List.create()
@@ -175,10 +184,25 @@ function Atlas.create(path)
                     hitboxes[index] = hitboxes[index] or hitboxes[index + 1]
                 end
             end
+            -- Filter pass
+            local function get_limits()
+                local hb_mask = frame_hitbox_mask[slice.name] or {}
+                return hb_mask.from or 1, hb_mask.to or #frames
+            end
+
+            local hb_to, hb_from = get_limits()
+
+            for i = 1, hb_to - 1 do
+                hitboxes[i] = nil
+            end
+            for i = hb_from + 1, #frames do
+                hitboxes[i] = nil
+            end
             -- Fill pass
             for i, f in ipairs(frames) do
                 frames[i].hitbox[slice.name] = hitboxes[i]
             end
+
         end
         -- Fill in tags
         local tags = Dictionary.create()
@@ -188,7 +212,6 @@ function Atlas.create(path)
         this.frames[name] = frames
         this.tags[name] = tags
     end
-
     return setmetatable(this, Atlas)
 end
 

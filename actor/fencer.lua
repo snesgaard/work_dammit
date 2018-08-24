@@ -58,9 +58,11 @@ end
 
 local function create_sprite(atlas)
     local sprite = Sprite.create(atlas)
+
     for key, anime in pairs(animations) do
         sprite:register(key, anime)
     end
+
     sprite.attack_offset = attack_offset
     return sprite
 end
@@ -70,12 +72,10 @@ function fencer.__tostring()
 end
 
 function fencer.init_visual(state, id)
-    --local atlas_path = "res/sprites/misc"
     local atlas_path = "art/main_actors"
     local atlas = state.atlas[atlas_path] or Atlas.create(atlas_path)
-    local sprite = create_sprite(atlas)--atlas:sprite(animation_aliases)
+    local sprite = create_sprite(atlas)
     local icon_path = "res/sprites/icon"
-    --local icon_atlas = state.atlas[icon_path] or Atlas.create(icon_path)
 
     state.atlas[atlas_path] = atlas
     state.atlas[icon_path] = icon_atlas
@@ -90,7 +90,7 @@ function fencer.init_state(state, id)
     state.agility[id] = 9
     state.name[id] = "Fencer"
     state.ability[id] = list(
-        ability.attack, ability.heal, ability.sap
+        ability.attack, ability.potion
     )
 end
 

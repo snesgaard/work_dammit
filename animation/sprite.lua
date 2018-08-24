@@ -21,12 +21,46 @@ function Sprite:draw(x, y, r, sx, sy)
     y = y + self.spatial.y
     sx = sx or 1
     sy = sy or 1
-    sx = sx * self.scale
+    sx = sx * self.scale * self.__mirror
     sy = sy * self.scale
     self.atlas:draw(self.__draw_frame, self.origin, x, y, r, sx, sy)
 end
 
 function Sprite.__on_frame_progress() end
+
+function Sprite.__on_frame_motion() end
+
+--function Sprite.__on_hitbox()
+--
+--end
+
+function Sprite:__get_motion(frames, frame_index, origin, mirror, scale)
+    origin = origin or self.origin
+    mirror = mirror or self.mirror
+    scale = scale or self.scale
+
+    local prev_frame = frames[frame_index - 1]
+    local next_frame = frames[frame_index]
+
+    if not prev_frame or not next_frame then
+        return vec2(0, 0)
+    end
+
+    local prev_pos = prev_frame.hitbox[origin]
+    local next_pos = next_frame.hitbox[origin]
+
+    local function get_center(pos)
+        if not pos then
+            return vec2(0, 0)
+        else
+            return vec2(pos.x + pos.w * 0.5, pos.y + pos.h * 0.5)
+        end
+    end
+
+    local motion = get_center(next_pos) - get_center(prev_pos)
+
+    return motion * mirror * scale
+end
 
 function Sprite:play(dt, frame_key)
     local frames = self.atlas:get_animation(frame_key)
@@ -34,12 +68,23 @@ function Sprite:play(dt, frame_key)
         local f = frames[i]
         self.__draw_frame = f
         self.time = self.time + f.time
-        self.__on_frame_progress(self, i, f)
+
+        local hitboxes = self:get_hitboxes()
+        self.on_hitbox(hitboxes)
+        self.__on_frame_progress(self, i, f, hitboxes)
+
+        local motion = self:__get_motion(
+            frames, i, self.origin, self.__mirror
+        )
+        self.__on_frame_motion(self, motion)
+
         while self.time > 0 do
-            dt = coroutine.yield()
+            _, dt = coroutine.yield()
             self.time = self.time - dt
         end
+
     end
+    self.on_loop()
 
     return dt
 end
@@ -63,8 +108,11 @@ function Sprite:show()
     )
 end
 
-function Sprite:get_hitbox(key, x, y)
+function Sprite:get_hitboxes(x, y)
     if not self.__draw_frame then return end
+
+    x = (x or 0) + self.spatial.x
+    y = (y or 0) + self.spatial.y
 
     local frame = self.__draw_frame
 
@@ -79,16 +127,23 @@ function Sprite:get_hitbox(key, x, y)
 
     local cx, cy = get_center()
 
-    local box = frame.hitbox[key]
+    local ret = dict.create()
 
-    if box then
-        return spatial(box.x, box.y, box.w, box.h)
+    for key, box in pairs(frame.hitbox) do
+        ret[key] = spatial(box.x, box.y, box.w, box.h)
             :move(-cx, -cy)
             :scale(self.scale, self.scale)
+            :map(function(s)
+                if self.__mirror < 0 then
+                    return s:hmirror(0, 0)
+                else
+                    return s
+                end
+            end)
             :move(x, y)
-    else
-        return
     end
+
+    return ret
 end
 
 function Sprite:shake(strong)
@@ -109,7 +164,6 @@ end
 function Sprite:loop(dt, frame_key)
     while true do
         dt = self:play(dt, frame_key)
-        self.on_loop()
     end
 end
 
@@ -117,7 +171,7 @@ function Sprite:register(key, animation)
     self.__states[key] = animation
 end
 
-function Sprite:set_animation(a)
+function Sprite:set_animation(a, ...)
     local s = self.__states[a]
     if s then
         self.time = 0
@@ -129,8 +183,13 @@ function Sprite:set_animation(a)
                 self.active = nil
             end
         )
+        return self
+    elseif a then
+        log.warn("Animation %s was not found", a)
+        return self:set_animation(...)
+    else
+        return self
     end
-    return self
 end
 
 function Sprite:set_origin(origin)
@@ -139,7 +198,7 @@ end
 
 function Sprite:update(dt)
     if self.active then
-        self.active(dt)
+        self.active(self, dt)
     end
     return self
 end
@@ -153,23 +212,46 @@ function Sprite:set_color(r, g, b, a)
     return self
 end
 
-function Sprite.create(atlas)
+function Sprite:set_mirror(val)
+    local prev_mirror = self.__mirror
+
+    if not val then
+        self.__mirror = -self.__mirror
+    else
+        self.__mirror = val
+    end
+
+    if prev_mirror ~= self.__mirror then
+        local hitboxes = self:get_hitboxes()
+        self.__on_hitbox(hitboxes)
+    end
+end
+
+function Sprite.create(atlas, animes)
     local this = {
         time = 0,
         atlas = atlas,
         __states = {},
         active = nil,
         origin = 'origin',
-        mirror = 1,
+        __mirror = 1,
         spatial = Spatial.create(),
         color = {1, 1, 1, 1},
         scale = 2,
         on_user = Event.create(),
         on_loop = Event.create(),
+        on_hitbox = Event.create(),
         shake_data = {amp = 0, phase = 0},
         __hitbox_cache = {}
     }
-    return setmetatable(this, Sprite)
+    this = setmetatable(this, Sprite)
+    animes = animes or {}
+
+    for k, v in pairs(animes) do
+        this:register(k, v)
+    end
+
+    return this
 end
 
 return Sprite

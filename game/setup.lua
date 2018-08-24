@@ -37,6 +37,31 @@ function setup.init_battle()
             visual.sprite[info.defender]:shake(info.crit or info.charge)
         end
     end)
+
+    -- Create shortcuts
+
+    function get_atlas(path)
+        if not visual.atlas[path] then
+            visual.atlas[path] = Atlas.create(path)
+        end
+        return visual.atlas[path]
+    end
+
+    function get_stat(...)
+        return nodes.game:get_stat(...)
+    end
+
+    function set_stat(...)
+        return nodes.game:set_stat(...)
+    end
+
+    function map_stat(...)
+        nodes.game:map_stat(...)
+    end
+
+    function monitor_stat(...)
+        return nodes.game:monitor_stat(...)
+    end
 end
 
 setup.actor = {}

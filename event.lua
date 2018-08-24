@@ -38,7 +38,9 @@ end
 function Event:__call(...)
     self.__locked = true
     for cb, active in pairs(self.listeners) do
-        cb(...)
+        if cb(...) then
+            self:remove(cb)
+        end
     end
     for l, _ in pairs(self.queue) do
         self.listeners[l] = true

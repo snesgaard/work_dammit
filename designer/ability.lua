@@ -65,6 +65,7 @@ function love.load(arg)
 
     nodes.animation:add(ability.run, user, target)
 
+    log.info("all done")
     function lurker.preswap(f)
         f = f:gsub('.lua', '')
         package.loaded[f] = nil

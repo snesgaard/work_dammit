@@ -61,6 +61,12 @@ function Spatial:unpack()
     return self.x, self.y, self.w, self.h
 end
 
+function Spatial:hmirror(ox, oy)
+    local dx = self.x - ox
+    local x = ox - dx
+    return Spatial.create(x - self.w, self.y, self.w, self.h)
+end
+
 function Spatial:expand(w, h, align, valign)
     if self.is_inflexible then
         return self
@@ -89,6 +95,14 @@ function Spatial:corner(x, y)
     local dy = y == "bottom" and self.h or 0
 
     return Vec2(self.x + dx, self.y + dy)
+end
+
+function Spatial:map(f)
+    return f(self)
+end
+
+function Spatial:center()
+    return Vec2(self.x + self.w * 0.5, self.y + self.h * 0.5)
 end
 
 function Spatial:xalign(src, dst_side, src_side, margin)

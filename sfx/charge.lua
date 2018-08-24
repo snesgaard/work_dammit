@@ -58,6 +58,7 @@ end
 
 function charge:__draw(x, y)
     y = (y or 0) + 10
+    gfx.setColor(1, 1, 1)
     gfx.draw(self.particles, x, y)
     gfx.draw(self.aura_particles, x, y - 40)
 end

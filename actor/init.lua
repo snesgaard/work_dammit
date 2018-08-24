@@ -1,5 +1,6 @@
 return {
     fencer = require "actor/fencer",
     box = require "actor/box",
-    healbox = require "actor/healbox"
+    healbox = require "actor/healbox",
+    alchemist = require "actor/alchemist"
 }

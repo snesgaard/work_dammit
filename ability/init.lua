@@ -1,5 +1,5 @@
 local modules = {
-    "attack", "heal", "sap", "shield", "thunder"
+    "attack", "heal", "sap", "shield", "thunder", "potion", "acid"
 }
 
 local loaded = {}
