@@ -15,6 +15,11 @@ function Node.create(f, ...)
         __threads2update = {
             front = {},
             back = {}
+        },
+        __transform = {
+            pos = vec2(0, 0),
+            angle = 0,
+            scale = vec2(1, 1)
         }
     }
     if type(f) == "table" then
@@ -79,11 +84,22 @@ function Node:update(dt)
     end
 end
 
-function Node:draw(...)
-    self:__draw(...)
+function Node:draw(x, y, r, sx, sy, ...)
+    local t = self.__transform
+    gfx.push()
+    gfx.translate((x or 0) + t.pos.x, (y or 0) + t.pos.y)
+    gfx.rotate((r or 0) + t.angle)
+    gfx.scale((sx or 1) * t.scale.x, (sy or 1) * t.scale.y)
+    self:__draw(0, 0, ...)
 
+    self:__childdraw(0, 0)
+
+    gfx.pop()
+end
+
+function Node:__childdraw(...)
     for _, node in ipairs(self.__node_order) do
-        node:draw(...)
+        node:draw(0, 0)
     end
 end
 

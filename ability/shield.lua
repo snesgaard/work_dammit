@@ -19,13 +19,13 @@ function shield.help_text(user)
 end
 
 shield.target = {
-    type = target.single,
-    candidates = function(placement, user)
-        return placement
-            :filter(target.same_side(user))
-            :filter(target.is_alive())
+    type = "single",
+    primary = target.same_side,
+    condition = function(index, id, user)
+        return target.is_alive(id)
     end
 }
+
 
 function shield.run(handle, caster, target)
     local cs = visual.sprite[caster]

@@ -12,6 +12,8 @@ local argmap = dict{
     acceleration = "setLinearAcceleration",
     relative_rotation = "setRelativeRotation",
     rotation = "setRotation",
+    quad = "setQuads",
+    spin = "setSpin"
 }
 
 local function apply_api(particle, key, value)

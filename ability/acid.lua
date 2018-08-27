@@ -19,11 +19,10 @@ function acid.help_text()
 end
 
 acid.target = {
-    type = target.single,
-    candidates = function(placement, user)
-        return placement
-            :filter(target.opposite_side(user))
-            :filter(target.is_alive())
+    type = "single",
+    primary = target.opposite_side,
+    condition = function(index, id, user)
+        return target.is_alive(id)
     end
 }
 

@@ -25,11 +25,17 @@ function server:process()
         self.on_done(f, unpack(args))
     end
 
+    self.__running = true
     f(self, unpack(args))
+    self.__running = false
 
     self:release()
 
     return self:process()
+end
+
+function server:is_running()
+    return self.__running
 end
 
 function server:add(f, ...)

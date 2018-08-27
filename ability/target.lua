@@ -15,92 +15,104 @@ end
 
 local target = {}
 
-function target.remove_self(user)
+function target.remove_self(index, id, user)
+    return user ~= id
+end
+
+function target.is_user(index, id, user)
+    return id == user
+end
+
+function target.same_side(index, id, side)
+    return index * side > 0
+end
+
+function target.opposite_side(index, id, side)
+    return index * side < 0
+end
+
+function target.is_alive(id)
+    return nodes.game:is_alive(id)
+end
+
+function target.is_dead(id)
+    return not nodes.game:is_alive(id)
+end
+
+local function apply_condition(data, user)
+    local condition = data.condition or function() return true end
     return function(index, id)
-        return user ~= id
+        return condition(index, id, user)
     end
 end
 
-function target.same_side(user)
-    local side = nodes.position:get(user)
-    return function(index, id)
-        return index * side > 0
-    end
+function target.self(placement, data, user)
+    return dict{
+        primary = list(user)
+    }
 end
 
-function target.opposite_side(user)
-    local side = nodes.position:get(user)
-    return function(index, id)
-        return index * side < 0
-    end
+function target.single(placement, data, user)
+    local user_side = nodes.position:get(user)
+
+    return dict{
+        primary = placement
+            :filter(function(index, id)
+                return data.primary(index, id, user_side)
+            end)
+            :filter(apply_condition(data, user))
+            :values(),
+        secondary = placement
+            :filter(function(index, id)
+                return not data.primary(index, id, user_side)
+            end)
+            :filter(apply_condition(data, user))
+            :values(),
+    }
 end
 
-function target.is_alive()
-    return function(index, id)
-        return nodes.game:is_alive(id)
-    end
+function target.multiple(placement, data, user)
+    local targets = target.single(placement, data, user)
+    return dict{
+        primary = list(targets.primary),
+        secondary = list(targets.secondary),
+    }
 end
 
-function target.is_dead()
-    return function(index, id)
-        return not nodes.game:is_alive(id)
-    end
+function target.all(placement, data, user)
+    return dict{
+        primary = list(
+            placement
+                :filter(apply_condition(data, user))
+                :values()
+        )
+    }
 end
 
+function target.candidates(data, user)
+    local placement = nodes.position.placements
 
-target.single = {}
+    local method = target[data.type]
 
-function target.single.create(self, targets)
-    kwargs = kwargs or {}
-    self.user = user
-    -- The fitler statement below both serves to potentially filter the user
-    -- and create a copy of the placement dictionary
-    self.targets = targets
-
-    self.marker = process.create(marker)
-
-    self.on_select = Event.create()
-    self.on_abort = Event.create()
-
-    self:set_target(1)
-
-    self:fork(self.control)
-end
-
-function target.single.control(self)
-    local key = self:wait(nodes.root.keypressed)
-
-    if key == "left" then
-        self:set_target(self.current - 1)
-    elseif key == "right" then
-        self:set_target(self.current + 1)
-    elseif key == "space" then
-        self.on_select(self.targets[self.current])
-    elseif key == "backspace" then
-        self.on_abort()
+    if not method then
+        log.warn("Target type %s not defined", data.type)
+        return
     end
 
-    if self.alive then
-        return target.single.control(self)
-    end
+    return method(placement, data, user)
 end
-
-function target.single.set_target(self, index)
-    self.current = math.cycle(index, 1, self.targets:size())
-    local pos = nodes.position:get_world(self.targets[self.current])
-    self.marker.pos = pos - vec2(0, 75)
-end
-
-
-function target:draw()
-    self.marker:draw()
-end
-
-target.single.draw = target.draw
 
 target.generic = {}
-function target.generic.create(self, ...)
-    self.__target_batches = {...}
+function target.generic.create(self, candidates)
+    local function sort_by_pos(a, b)
+        local p = nodes.position
+        return p:get(a) > p:get(b)
+    end
+
+    self.__target_batches = {
+        candidates.primary:sort(sort_by_pos),
+        candidates.secondary and candidates.secondary:sort(sort_by_pos)
+    }
     self.marker = process.create(marker)
 
     self.on_select = Event.create()
@@ -148,7 +160,7 @@ function target.generic.control(self)
     end
 
     if self.alive then
-        return target.single.control(self)
+        return target.generic.control(self)
     end
 end
 
@@ -156,7 +168,7 @@ function target.generic.__draw(self)
     local target = self:get_target()
 
     local function action(id)
-        local pos = nodes.position.get_world(id)
+        local pos = nodes.position:get_world(id) - vec2(0, 75)
         gfx.setColor(0, 0, 1)
         gfx.rectangle("fill", pos.x, pos.y, 10, 10)
     end

@@ -47,24 +47,20 @@ function control.select_target(self, action)
         return self.on_select()
     end
 
-    local t = action.target.type
+    --local t = action.target.type
 
-    local placement = nodes.position.placements
+    --local placement = nodes.position.placements
+    local target_candidates = target.candidates(action.target, self.user)
 
-    local function sort_by_position(a, b)
-        return nodes.position:get(a) > nodes.position:get(b)
-    end
 
-    local target_batches = list(action.target.candidates(placement, self.user))
-        :map(function(targets)
-            return targets:values():sort(sort_by_position)
-        end)
-
-    if target_batches:size() == 0 then
+    if target_candidates.primary:size() == 0
+        and target_candidates.secondary:size() == 0
+    then
         -- Do a beep thing that signals invalid stuff
         return control.wait_for_item(self)
     end
-    self.target = process.create(t, target_batches:unpack())
+
+    self.target = process.create(target.generic, target_candidates)
 
     local event_args = self:wait(self.target.on_select, self.target.on_abort)
     self.target:destroy()

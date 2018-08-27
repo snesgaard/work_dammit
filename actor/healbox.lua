@@ -38,9 +38,10 @@ local function ai(id)
     local placements = nodes.position.placements
 
     local function get_heal_action()
-        local target = heal.target.candidates(placements, id)
-            :values()
+        local target = target.candidates(heal.target, id)
+            .primary
             :filter(function(a)
+                print(a)
                 local c = nodes.game:get_stat("health/current", a)
                 local m = nodes.game:get_stat("health/max", a)
                 return m - c > 0
@@ -55,9 +56,8 @@ local function ai(id)
     end
 
     local function get_buff_action()
-        return shield.target.candidates(placements, id)
-            --:filter(target.remove_self(id))
-            :values()
+        return target.candidates(shield.target, id)
+            .primary
             :shuffle()
             :head()
     end

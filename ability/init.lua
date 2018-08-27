@@ -1,5 +1,6 @@
 local modules = {
-    "attack", "heal", "sap", "shield", "thunder", "potion", "acid"
+    "attack", "heal", "sap", "shield", "thunder", "potion", "acid",
+    "thawing_blast", "hailstorm"
 }
 
 local loaded = {}

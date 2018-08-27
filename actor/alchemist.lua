@@ -77,7 +77,7 @@ function alchemist.init_state(state, id)
     state.agility[id] = 5
     state.name[id] = "Alchemist"
     state.ability[id] = list(
-        ability.acid, ability.potion
+        ability.acid, ability.potion, ability.hailstorm
     )
 end
 

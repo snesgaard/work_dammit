@@ -2,6 +2,7 @@ local game = require "game"
 
 local friend_type = require "actor/fencer"
 local target_type = require "actor/box"
+local target = require "ability/target"
 lume = require "modules/lume"
 local lurker = require "modules/lurker"
 
@@ -39,10 +40,11 @@ function love.load(arg)
 
     local user = nodes.position:get(1)
 
-    local target_candidates = ability.target.candidates(
-        nodes.position.placements, user
-    )
-    local target = target_candidates:values():tail()
+    --local target_candidates = ability.target.candidates(
+    --    nodes.position.placements, user
+    --)
+    local target_candidates = target.candidates(ability.target, user)
+    local target = target_candidates.primary:tail()
     log.info("picking target %s", target)
     if ability.test_setup then
         ability.test_setup(user, target)
@@ -52,10 +54,18 @@ function love.load(arg)
 
     target_all = type(target) == "string" and list(target) or target
 
-    for _, id in pairs(target_candidates:values()) do
+    local function handle_visual_activation(id)
         if id ~= user then
             local t = typemap[id]
             game.setup.actor.visual(id, t)
+        end
+    end
+
+    for _, p in pairs(target_candidates.primary) do
+        if istype(p, List) then
+            p:map(handle_visual_activation)
+        else
+            handle_visual_activation(p)
         end
     end
     log.info("Visuals initialized")

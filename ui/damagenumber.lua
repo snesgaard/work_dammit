@@ -104,6 +104,7 @@ function DamageNumberServer:create()
     for _, stat in pairs({"armor", "power", "agility"}) do
         nodes.game:monitor_stat(stat, function(id, value, prev)
             if value == prev then return end
+            prev = prev or 0
             local im = self.icons[stat]
             local pos = nodes.position:get_world(id)
             self:child(statup, value > prev)

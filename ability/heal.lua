@@ -15,13 +15,13 @@ function heal.help_text(user)
 end
 
 heal.target = {
-    type = target.single,
-    candidates = function(placement, user)
-        return placement
-            :filter(target.same_side(user))
-            :filter(target.is_alive())
+    type = "single",
+    primary = target.same_side,
+    condition = function(index, id, user)
+        return target.is_alive(id)
     end
 }
+
 
 function heal.test_setup(user, target)
     nodes.game.actor.health.current[target] = 1

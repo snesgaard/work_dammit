@@ -17,8 +17,8 @@ function Sprite:draw(x, y, r, sx, sy)
     gfx.setColor(unpack(self.color))
     local amp = self.shake_data.amp
     local phase = self.shake_data.phase
-    x = x + self.spatial.x + math.sin(phase) * amp
-    y = y + self.spatial.y
+    x = (x or 0) + self.spatial.x + math.sin(phase) * amp
+    y = (y or 0) + self.spatial.y
     sx = sx or 1
     sy = sy or 1
     sx = sx * self.scale * self.__mirror

@@ -10,6 +10,9 @@ end
 
 function round_planner.create(self)
     self.on_round_finish = Event.create()
+    self.on_round_begin = Event.create()
+    self.on_turn_begin = Event.create()
+    self.on_turn_finish = Event.create()
 end
 
 function round_planner.submit(self, actors)
@@ -79,7 +82,11 @@ function round_planner.__plan(self, actors)
         nodes.turn:set_selected(#actors)
     end
 
+    self.on_round_begin(actors)
+
     for i, id in ipairs(actors) do
+        self.on_turn_begin(i, id)
+
         self.active_actor = id
         local action, target = get_action(id)
         if action then
@@ -89,13 +96,17 @@ function round_planner.__plan(self, actors)
                 :set_text(name)
                 :set_font(ui.font(20))
             nodes.animation:add(action.run, id, target)
-            self:wait(nodes.animation.on_done)
+            if nodes.animation:is_running() then
+                self:wait(nodes.animation.on_done)
+            end
             self.announcer:destroy()
             self.announcer = nil
         end
         nodes.turn:pop()
         nodes.turn:set_selected(#actors - i)
         self.active_actor = nil
+
+        self.on_turn_finish(i, id)
     end
 
     self.plan = nil

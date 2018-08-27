@@ -15,12 +15,14 @@ function love.load(arg)
     game.setup.init_battle()
     nodes.holder = process.create()
 
+    settings = {origin = false}
+
     for _, path in ipairs(arg) do
         local p = path:gsub('.lua', '')
         local t = reload(p)
         local n = nodes.holder:child(t)
         if n.test then
-            n:fork(n.test)
+            n:fork(n.test, settings)
         end
     end
 
@@ -69,7 +71,11 @@ function love.draw()
     gfx.line(w * 0.5, 0, w * 0.5, h)
     --gfx.translate(w * 0.25, h * 0.5)
     gfx.setColor(255, 255, 255)
-    nodes.holder:draw(w * 0.5, h * 0.5)
+    if settings.origin then
+        nodes.holder:draw(0, 0)
+    else
+        nodes.holder:draw(w * 0.5, h * 0.5)
+    end
     draw_pause(25, 25, 50, 40)
 end
 

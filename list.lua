@@ -248,6 +248,14 @@ function list:shuffle()
   return ret
 end
 
+function list:random()
+    if #self < 1 then
+        return
+    end
+    local rng = love.math.random
+    return self[rng(1, #self)]
+end
+
 function list:sort(f)
   local ret = list.create(unpack(self))
   table.sort(ret, f)
