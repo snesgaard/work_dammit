@@ -2,6 +2,10 @@ local id_gen = {}
 
 local global_registry = Dictionary.create()
 
+function id_gen.reset()
+    global_registry = Dictionary.create()
+end
+
 function id_gen.register(obj)
     local name = tostring(obj)
 

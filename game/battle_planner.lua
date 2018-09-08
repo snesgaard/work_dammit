@@ -34,9 +34,9 @@ function battle_planner.control(self)
     if battle_active then
         return battle_planner.control(self)
     elseif nodes.round_planner:party_alive() then
-        print("Victory!")
+        self.victory = "Victory"
     else
-        print("Failure")
+        self.victory = "Fail"
     end
 end
 
@@ -46,6 +46,19 @@ function battle_planner.is_finished(self)
     local enemy_alive = is_alive("enemy")
 
     return party_alive and enemy_alive
+end
+
+function battle_planner:__draw()
+    local font = require "ui/fonts"
+    gfx.setFont(font(60))
+    if self.victory then
+        if self.victory == "Fail" then
+            gfx.setColor(1.0, 0.5, 0.2)
+        else
+            gfx.setColor(0.7, 0.9, 1.0)
+        end
+        gfx.printf(self.victory, gfx.getWidth() / 2 - 500, 50, 1000, "center")
+    end
 end
 
 return battle_planner

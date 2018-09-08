@@ -9,7 +9,6 @@ function love.load(arg)
     local scene = arg:head()
     if scene then
         local p = scene:gsub('.lua', '')
-        print("loading", p)
         local t = reload(p)
         nodes.holder:child(t)
         nodes.battle_planner:begin()
@@ -40,6 +39,7 @@ function love.draw()
 
     nodes.sfx:draw()
     nodes.charge:draw()
+    nodes.elem_monitor:draw()
     nodes.damage_number:draw()
 
     for id, ui in pairs(visual.ui) do

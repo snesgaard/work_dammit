@@ -14,12 +14,12 @@ ability.target = {
 }
 
 function ability.name()
-    return "Shield"
+    return "Charge"
 end
 
 function ability.help_text()
     return string.format(
-        "Void next incoming attack"
+        "Deal double damage on next attack"
     )
 end
 
@@ -28,7 +28,7 @@ function ability.run(handle, caster, target)
     local sfx = nodes.sfx:child(charge_sfx, target)
     handle:wait(sfx.on_finish)
     sfx:destroy()
-    set_stat("shield", target, 1)
+    set_stat("charge", target, 1)
     sa:set_animation("idle")
 end
 

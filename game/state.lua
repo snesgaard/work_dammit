@@ -14,7 +14,31 @@ local function create_actor_state()
         shield = dict{},
         charge = dict{},
         script = dict{},
-        name = dict{}
+        name = dict{},
+        -- Field state
+        status = dict{
+            type = dict{},
+            duration = dict{}
+        },
+        air = dict{
+            type = dict{},
+            duration = dict{}
+        },
+        ground = dict{
+            type = dict{},
+            duration = dict{}
+        },
+    }
+end
+
+
+local function create_ability_state()
+    return dict{
+        cooldown = dict{
+            max = dict{}, current = dict{},
+        },
+        type = dict{},
+
     }
 end
 
@@ -128,11 +152,11 @@ function State:damage(attacker, defender, damage)
     local agi_a = self:get_stat("agility", attacker) or 0
     local agi_d = self:get_stat("agility", defender) or 0
 
-    local crit_chance = (agi_a - agi_d) / 10.0
-    local miss_chance = (agi_d - agi_a) / 10.0
+    local crit_chance = (agi_a - agi_d) / 40.0
+    local miss_chance = (agi_d - agi_a) / 40.0
 
-    local crit = crit_chance > rng()
-    local miss = miss_chance > rng()
+    local crit = false--crit_chance > rng()
+    local miss = false--miss_chance > rng()
 
     local power = self.actor.power[attacker]
     local armor = self:get_stat("armor", defender) or 0

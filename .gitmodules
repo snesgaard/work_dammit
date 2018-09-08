@@ -1,3 +1,6 @@
 [submodule "art_damnit"]
 	path = art
 	url = ../art_damnit.git
+[submodule "moonshine"]
+	path = modules/moonshine
+	url = https://github.com/vrld/moonshine

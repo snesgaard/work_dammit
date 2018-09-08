@@ -4,7 +4,7 @@ local mech = require "game/mechanics"
 local common = require "animation/common"
 
 local DAMAGE = 1
-local ARMOR = 1
+local ARMOR = 0
 
 local SPIKES = 5
 

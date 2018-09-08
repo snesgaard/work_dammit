@@ -117,7 +117,6 @@ end
 function cast:life()
     self.entry = self:child(entry_particle)
     self:wait(self.entry.on_finish)
-    print("pulse")
     self.pulse = self:child(pulse)
     self:wait(self.pulse.on_finish)
     self.on_finish()

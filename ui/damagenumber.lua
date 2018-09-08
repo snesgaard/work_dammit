@@ -81,7 +81,7 @@ function DamageNumberServer:create()
             self:number("Miss", pos.x, pos.y)
         elseif info.shielded then
             self:number("Void", pos.x, pos.y)
-        elseif info.crit then
+        elseif info.crit or info.charged then
             dmg = tostring(dmg) .. "\nCritical"
             self:number(dmg, pos.x, pos.y, "crit")
         else

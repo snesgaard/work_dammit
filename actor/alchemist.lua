@@ -74,11 +74,14 @@ function alchemist.init_state(state, id)
     state.health.max[id] = 15
     state.health.current[id] = 15
     state.power[id] = 2
-    state.agility[id] = 5
+    state.agility[id] = 4
     state.name[id] = "Alchemist"
     state.ability[id] = list(
-        ability.acid, ability.potion, ability.hailstorm
+        ability.acid, ability.potion, ability("stoneskin_oil")
     )
 end
+
+alchemist.__index = alchemist
+alchemist = setmetatable(alchemist, alchemist)
 
 return alchemist

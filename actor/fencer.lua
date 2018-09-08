@@ -87,10 +87,10 @@ function fencer.init_state(state, id)
     state.health.max[id] = 10
     state.health.current[id] = 10
     state.power[id] = 3
-    state.agility[id] = 9
+    state.agility[id] = 5
     state.name[id] = "Fencer"
     state.ability[id] = list(
-        ability.attack, ability.potion, ability.thawing_blast
+        ability('hamstring'), ability.potion, ability("reckless_assault")
     )
 end
 

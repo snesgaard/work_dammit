@@ -139,7 +139,10 @@ function menu:control()
         if event.event == self.disable then
             return
         else
-            if not parse_key(unpack(event)) then
+            local enable_bg = self.enable:listen()
+            local r = parse_key(unpack(event))
+            enable_bg:remove()
+            if not r or enable_bg:called() then
                 return active()
             else
                 return

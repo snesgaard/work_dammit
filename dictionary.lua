@@ -18,6 +18,11 @@ function dictionary.__tostring(d)
   return s
 end
 
+function dictionary:print()
+    print(self)
+    return self
+end
+
 function dictionary.create(d)
   local data = {}
   for key, val in pairs(d or {}) do

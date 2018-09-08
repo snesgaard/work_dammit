@@ -1,12 +1,9 @@
 local textbox = require "ui/labelbox"
 local icon = require "ui/icon"
-local pimage = require "ui/pseudo_image"
 
 local marker = {}
 
 function marker:test()
-
-
     self:set_image(
         gfx.newImage("art/armor.png")
     )

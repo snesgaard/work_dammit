@@ -223,7 +223,7 @@ function Sprite:set_mirror(val)
 
     if prev_mirror ~= self.__mirror then
         local hitboxes = self:get_hitboxes()
-        self.__on_hitbox(hitboxes)
+        self.on_hitbox(hitboxes)
     end
 end
 

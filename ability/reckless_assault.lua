@@ -1,34 +1,34 @@
 local mech = require "game/mechanics"
 local common = require "animation/common"
 local charge_sfx = require "sfx/charge_cast"
-local target = require "ability/target"
+
+local ARMOR = 5
+local POWER = 5
 
 local ability = {}
 
 ability.target = {
-    type = "single",
-    primary = target.same_side,
-    condition = function(index, id, user)
-        return target.is_alive(id)
-    end
+    type = "self"
 }
 
 function ability.name()
-    return "Shield"
+    return "Reckless Assault"
 end
 
 function ability.help_text()
     return string.format(
-        "Void next incoming attack"
+        "Gain %i POWER, lose %i ARMOR",
+        POWER, ARMOR
     )
 end
 
-function ability.run(handle, caster, target)
+function ability.run(handle, caster)
     local hb, sa = common.cast(handle, caster)
-    local sfx = nodes.sfx:child(charge_sfx, target)
+    local sfx = nodes.sfx:child(charge_sfx, caster)
     handle:wait(sfx.on_finish)
     sfx:destroy()
-    set_stat("shield", target, 1)
+    map_stat("armor", caster, mech.add_stat(-ARMOR))
+    map_stat("power", caster, mech.add_stat(POWER))
     sa:set_animation("idle")
 end
 

@@ -96,9 +96,7 @@ function round_planner.__plan(self, actors)
                 :set_text(name)
                 :set_font(ui.font(20))
             nodes.animation:add(action.run, id, target)
-            if nodes.animation:is_running() then
-                self:wait(nodes.animation.on_done)
-            end
+            self:wait(nodes.animation.on_done)
             self.announcer:destroy()
             self.announcer = nil
         end

@@ -1,8 +1,7 @@
 local target = require "ability/target"
 local sparkle = require "sfx/sparkle"
 
-local HEAL = 3
-
+local HEAL = 30
 
 local heal = {}
 
@@ -21,7 +20,6 @@ heal.target = {
         return target.is_alive(id)
     end
 }
-
 
 function heal.test_setup(user, target)
     nodes.game.actor.health.current[target] = 1

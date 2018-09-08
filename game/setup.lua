@@ -12,19 +12,6 @@ local sfx = require "sfx"
 local setup = {}
 
 function setup.init_battle()
-    nodes.position = process.create(position)
-    nodes.animation = process.create(server)
-    nodes.round_planner = process.create(planner.round)
-    nodes.battle_planner = process.create(planner.battle)
-
-    nodes.game = process.create(state)
-    nodes.damage_number = process.create(ui.damage_number)
-    nodes.char_monitor = process.create(ui.char_monitor)
-    nodes.sfx = process.create()
-
-    nodes.charge = process.create(sfx.manager.charge)
-    nodes.turn = process.create(ui.turn_row)
-
     visual = {
         sprite = {},
         ui = {},
@@ -32,14 +19,14 @@ function setup.init_battle()
         icon = {},
     }
 
-    nodes.game.event.on_damage:listen(function(info)
-        if not info.miss and not info.shield and info.damage > 0 then
-            visual.sprite[info.defender]:shake(info.crit or info.charge)
-        end
-    end)
+    nodes.position = process.create(position)
+    nodes.animation = process.create(server)
+    nodes.round_planner = process.create(planner.round)
+    nodes.battle_planner = process.create(planner.battle)
+
+    nodes.game = process.create(state)
 
     -- Create shortcuts
-
     function get_atlas(path)
         if not visual.atlas[path] then
             visual.atlas[path] = Atlas.create(path)
@@ -48,7 +35,7 @@ function setup.init_battle()
     end
 
     function get_stat(...)
-        return nodes.game:get_stat(...)
+        return nodes.game:get_stat(...) or 0
     end
 
     function set_stat(...)
@@ -62,6 +49,22 @@ function setup.init_battle()
     function monitor_stat(...)
         return nodes.game:monitor_stat(...)
     end
+
+    nodes.damage_number = process.create(ui.damage_number)
+    nodes.char_monitor = process.create(ui.char_monitor)
+    nodes.sfx = process.create()
+    nodes.elem_monitor = process.create(require "element/visual")
+
+    nodes.charge = process.create(sfx.manager.charge)
+    nodes.turn = process.create(ui.turn_row)
+
+    nodes.game.event.on_damage:listen(function(info)
+        if not info.miss and not info.shield and info.damage > 0 then
+            visual.sprite[info.defender]:shake(info.crit or info.charge)
+        end
+    end)
+
+    --set_stat("ground/type", -1, "burn")
 end
 
 setup.actor = {}
@@ -71,12 +74,23 @@ function setup.actor.state(position, type)
     local id = id_gen.register(type)
     type.init_state(nodes.game.actor, id)
     nodes.position:set(id, position)
+    if get_stat("health/current", id) == 0 then
+        set_stat(
+            "health/current", id, get_stat("health/max", id)
+        )
+    end
     return id
 end
 
 function setup.actor.visual(id, type)
     type.init_visual(visual, id)
     visual.ui[id] = process.create(ui.char_bar, id)
+
+    local p = nodes.position:get(id)
+    local s = visual.sprite[id]
+    if p < 0 and s then
+        s:set_mirror()
+    end
 end
 
 function setup.actor.full(party, foes)

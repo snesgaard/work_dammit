@@ -5,6 +5,7 @@ local Listener = {}
 Listener.__index = Listener
 
 function Listener.create(event, callback)
+    callback = callback or function() end
     local this = {
         event = event, callback = callback, count = 0, limit = math.huge
     }
@@ -14,6 +15,10 @@ end
 function Listener:take(limit)
     self.limit = limit
     return self
+end
+
+function Listener:called()
+    return self.count > 0
 end
 
 function Listener:__call(...)

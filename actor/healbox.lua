@@ -35,42 +35,24 @@ local function create_sprite()
 end
 
 local function ai(id)
-    local placements = nodes.position.placements
+    local c = target.candidates(heal.target, id)
+    local t = c.primary
+        :filter(function(a)
+            local hc = get_stat("health/current", a)
+            local hm = get_stat("health/max", a)
+            return hc < hm
+        end)
+        :sort(function(a, b)
+            local ha = get_stat("health/current", a)
+            local hb = get_stat("health/current", b)
+            return ha < hb
+        end)
+        :head()
 
-    local function get_heal_action()
-        local target = target.candidates(heal.target, id)
-            .primary
-            :filter(function(a)
-                print(a)
-                local c = nodes.game:get_stat("health/current", a)
-                local m = nodes.game:get_stat("health/max", a)
-                return m - c > 0
-            end)
-            :sort(function(a, b)
-                local ca = nodes.game:get_stat("health/current", a)
-                local cb = nodes.game:get_stat("health/current", b)
-                return ca < cb
-            end)
-            :head()
-        return target
-    end
-
-    local function get_buff_action()
-        return target.candidates(shield.target, id)
-            .primary
-            :shuffle()
-            :head()
-    end
-
-    local actionplans = {
-        [heal] = get_heal_action(),
-        [shield] = get_buff_action(),
-    }
-
-    if actionplans[heal] and rng() > 0.75 then
-        return heal, actionplans[heal]
-    elseif actionplans[shield] then
-        return shield, actionplans[shield]
+    if not t then
+        return
+    else
+        return heal, t
     end
 end
 
@@ -87,11 +69,11 @@ function healbox.init_visual(state, id)
 end
 
 function healbox.init_state(state, id)
-    state.health.max[id] = 4
-    state.health.current[id] = 4
+    state.health.max[id] = 8
+    state.health.current[id] = 8
     state.power[id] = 0
     state.agility[id] = 2
-    state.armor[id] = 1
+    state.armor[id] = 2
     state.script[id] = ai
     state.name[id] = "Healer Box"
     visual.icon[id] = function(x, y, w, h)
