@@ -14,15 +14,38 @@ end
 button.selected = {}
 button.normal = {}
 
-function button:create(text)
-    self.frame = frame.create():set_color(1, 1, 1)
-    self.label = label.create():set_text(text or ""):set_font(fonts(14))
+local THEME = {
+    white = {1, 1, 1},
+    blue = {0.8, 0.9, 1.0}
+}
+
+function button:create(text, theme)
+    theme = theme or "white"
+    self.theme = THEME[theme]
+    if not self.theme then
+        self.theme = theme.white
+        log.warn("Theme %s not found", theme)
+    end
+    self.frame = frame.create():set_color(unpack(self.theme))
+    self.label = label.create()
+        :set_text(text or "")
+        :set_font(fonts(14))
 end
 
-function button:draw(...)
-    self.frame:draw(...)
+function button:get_theme()
+    return {unpack(self.theme)}
+end
+
+function button:draw(x, y, ...)
+    self.frame:draw(x, y, ...)
     gfx.setColor(0, 0, 0)
-    self.label:draw(...)
+    self.label:draw(x, y, ...)
+    if self.theme == THEME.blue then
+        gfx.setColor(0.2, 0.4, 0.8)
+        local fx, fy, w, h = self.frame.spatial:unpack()
+        gfx.setLineWidth(2)
+        gfx.rectangle("line", x + fx, y + fy, w, h, self.frame.corner)
+    end
 end
 
 function button:set_text(text)
@@ -42,7 +65,7 @@ function button:get_spatial()
 end
 
 function button.selected.enter(self)
-    self.frame.color = {1, 1, 1}
+    self.frame.color = self:get_theme()
     self.frame:set_spatial(self.spatial:copy())
     if not self.animation then
          self.animation = self:fork(self.selected.animate)
@@ -77,7 +100,7 @@ function button.normal.enter(self)
         self.animation = nil
     end
 
-    self.frame.color = {1, 1, 1}
+    self.frame.color = self:get_theme()
     self.frame:set_spatial(self.spatial:copy())
 end
 

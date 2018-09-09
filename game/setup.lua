@@ -53,7 +53,6 @@ function setup.init_battle()
     nodes.damage_number = process.create(ui.damage_number)
     nodes.char_monitor = process.create(ui.char_monitor)
     nodes.sfx = process.create()
-    nodes.elem_monitor = process.create(require "element/visual")
 
     nodes.charge = process.create(sfx.manager.charge)
     nodes.turn = process.create(ui.turn_row)

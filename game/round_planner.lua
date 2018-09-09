@@ -38,12 +38,35 @@ end
 
 function round_planner.__plan(self, actors)
     local function handle_player(id)
-        self.action_planner = process.create(action_planner)
-            :set_state(action_planner.selection, id)
 
-        local action, target = self:wait(self.action_planner.on_select)
+        local function target_cache_id(action, id)
+            return action.name() .. id
+        end
+
+        local function get_target_cache(action, id)
+            return get_stat("target_memory", target_cache_id(action, id))
+        end
+
+        local function set_target_cache(action, id, target)
+            return set_stat(
+                "target_memory", target_cache_id(action, id), target
+            )
+        end
+
+        self.action_planner = process.create(
+            action_planner, get_target_cache, set_target_cache
+        )
+            :set_state(
+                action_planner.selection, id, get_stat("menu_memory", id)
+            )
+
+        local action, target, action_index = self:wait(
+            self.action_planner.on_select
+        )
         self.action_planner:destroy()
         self.action_planner = nil
+
+        set_stat("menu_memory", id, action_index)
 
         return action, target
     end
@@ -90,6 +113,8 @@ function round_planner.__plan(self, actors)
         self.active_actor = id
         local action, target = get_action(id)
         if action then
+            -- TODO Consider just removing the specific action
+            set_stat("unlocked", id, list())
             local name = action.name and action.name() or "Foobar"
             self.announcer = self:child(ui.textbox)
                 :set_width(500, 500)

@@ -117,6 +117,7 @@ function target.generic.create(self, candidates)
 
     self.on_select = Event.create()
     self.on_abort = Event.create()
+    self.on_change = Event.create()
 
     self:set_batch(1)
 
@@ -136,6 +137,7 @@ end
 function target.generic.set_target(self, target)
     local batch = self:get_batch()
     self.__target = math.cycle(target, 1, #batch)
+    self.on_change(self:get_target())
     return self
 end
 

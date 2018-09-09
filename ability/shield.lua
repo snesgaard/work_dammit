@@ -25,7 +25,7 @@ end
 
 function ability.run(handle, caster, target)
     local hb, sa = common.cast(handle, caster)
-    local sfx = nodes.sfx:child(charge_sfx, target)
+    local sfx = nodes.sfx:child(charge_sfx, target, "blue")
     handle:wait(sfx.on_finish)
     sfx:destroy()
     set_stat("shield", target, 1)

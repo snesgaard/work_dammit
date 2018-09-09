@@ -39,7 +39,6 @@ function love.draw()
 
     nodes.sfx:draw()
     nodes.charge:draw()
-    nodes.elem_monitor:draw()
     nodes.damage_number:draw()
 
     for id, ui in pairs(visual.ui) do

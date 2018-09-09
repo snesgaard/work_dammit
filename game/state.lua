@@ -7,6 +7,7 @@ local function create_actor_state()
             max = dict{}, current = dict{}
         },
         ability = dict{},
+        unlocked = dict{},
         power = dict{},
         defense = dict{},
         agility = dict{},
@@ -15,6 +16,8 @@ local function create_actor_state()
         charge = dict{},
         script = dict{},
         name = dict{},
+        menu_memory = dict{},
+        target_memory = dict{},
         -- Field state
         status = dict{
             type = dict{},

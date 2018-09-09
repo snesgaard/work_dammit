@@ -69,9 +69,9 @@ function menu:test()
     local items = list(
         self.item("Foo", 11),
         self.item("Bar", 11),
-        self.item("Boi", 11),
-        self.item("shizzle", 11),
-        self.item("fizzle", 11)
+        self.item("Boi", 11, "blue"),
+        self.item("shizzle", 11, "blue"),
+        self.item("fizzle", 11, "blue")
     )
     self:set_window_size(3)
     self:set_items(items)
@@ -201,8 +201,8 @@ function menu:__update_slider_limit()
     return self
 end
 
-function menu.item(name, value)
-    return dict{name=name, value=value}
+function menu.item(name, value, theme)
+    return dict{name=name, value=value, theme=theme or "white"}
 end
 
 function menu:all_visible()
@@ -323,9 +323,10 @@ end
 function menu:set_items(items)
     local function ui_item(item)
         local name = item.name
-        return self:child(button)
+        local b = self:child(button, name, item.theme)
             :set_text(name)
             :set_spatial(spatial.create(0, 0, self.size.item:unpack()))
+        return b
     end
 
     self.items = items

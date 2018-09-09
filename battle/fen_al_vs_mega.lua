@@ -33,6 +33,12 @@ function battle:create()
             ability("shield")
         )
     )
+    set_stat(
+        "unlocked", id,
+        list(
+            ability("mass_shield")
+        )
+    )
 end
 
 return battle
