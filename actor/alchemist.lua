@@ -8,7 +8,8 @@ function animations.idle(sprite, dt, prev)
     if prev == animations.cast then
         dt = sprite:play(dt, "gunner_cast/cast2idle")
     end
-    sprite:loop(dt, "gunner_idle")
+    local rng = love.math.random
+    sprite:loop(dt, "gunner_idle", rng(1, 8))
 end
 
 function animations.chant(sprite, dt)

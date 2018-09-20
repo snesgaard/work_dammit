@@ -1,7 +1,7 @@
 game = require "game"
 
 function love.load(arg)
-    gfx.setBackgroundColor(0, 0, 0, 0)
+    gfx.setBackgroundColor(0.0, 0.0, 0.0, 0)
     game.setup.init_battle()
     nodes.holder = process.create()
 

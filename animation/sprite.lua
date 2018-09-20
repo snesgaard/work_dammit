@@ -62,9 +62,10 @@ function Sprite:__get_motion(frames, frame_index, origin, mirror, scale)
     return motion * mirror * scale
 end
 
-function Sprite:play(dt, frame_key)
+function Sprite:play(dt, frame_key, init_frame)
+    init_frame = init_frame or 1
     local frames = self.atlas:get_animation(frame_key)
-    for i = 1, frames:size() do
+    for i = init_frame, frames:size() do
         local f = frames[i]
         self.__draw_frame = f
         self.time = self.time + f.time
@@ -161,9 +162,10 @@ function Sprite:shake(strong)
     )
 end
 
-function Sprite:loop(dt, frame_key)
+function Sprite:loop(dt, frame_key, init_frame)
     while true do
-        dt = self:play(dt, frame_key)
+        dt = self:play(dt, frame_key, init_frame)
+        init_frame = 1
     end
 end
 
