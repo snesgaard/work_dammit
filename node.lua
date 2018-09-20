@@ -23,6 +23,7 @@ function Node.create(f, ...)
         }
     }
     if type(f) == "table" then
+        f.create = f.create or function() end
         setmetatable(f, {__index = Node})
         f.__index = f
         this = setmetatable(this, f)

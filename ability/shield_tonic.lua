@@ -4,21 +4,16 @@ local Sprite = require "animation/sprite"
 local projectile = require "animation/projectile"
 local common = require "animation/common"
 local sparkle = require "sfx/sparkle"
-
-local HEAL = 5
+local mech = require "game/mechanics"
 
 local potion = {}
 
-potion.unlock = {
-    "stoneskin_oil", "shield_tonic", "mass_potion"
-}
-
 function potion.name()
-    return "Potion"
+    return "Shield Tonic"
 end
 
 function potion.help_text(user)
-    return string.format("Restore %i health.", HEAL)
+    return string.format("Give SHIELD")
 end
 
 potion.target = {
@@ -33,8 +28,8 @@ function potion.run(handle, caster, target)
     local cast_hb, sa = common.cast(handle, caster)
 
     local potion_node = nodes.sfx:child(
-        projectile.sprite, cast_hb:center(), "potion_red/idle",
-        "potion_red/break"
+        projectile.sprite, cast_hb:center(), "potion_blue/idle",
+        "potion_blue/break"
     )
 
     local travel_time = 0.7
@@ -43,10 +38,8 @@ function potion.run(handle, caster, target)
     handle:wait(projectile.ballistic(potion_node, -200, travel_time, stop_pos))
 
     potion_node.sprite:set_animation("impact")
-    nodes.game:heal(caster, target, HEAL)
-    local s = nodes.sfx:child(sparkle):set_pos(stop_pos)
+    set_stat("shield", target, 1)
     sa:set_animation("idle")
-
 end
 
 

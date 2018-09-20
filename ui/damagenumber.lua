@@ -77,6 +77,18 @@ function DamageNumberServer:create()
         local dmg = info.damage
 
         local pos = nodes.position:get_world(id) - vec2(0, 100)
+        local sprite = visual.sprite[id]
+
+        local function get_sprite_offset()
+            if not sprite then
+                return vec2(0, 0)
+            else
+                return vec2(sprite.spatial.x, sprite.spatial.y)
+            end
+        end
+
+        pos = pos + get_sprite_offset()
+
         if info.miss then
             self:number("Miss", pos.x, pos.y)
         elseif info.shielded then
@@ -106,10 +118,15 @@ function DamageNumberServer:create()
             if value == prev then return end
             prev = prev or 0
             local im = self.icons[stat]
-            local pos = nodes.position:get_world(id)
+            local base_pos = nodes.position:get_world(id)
+            local s_pos = visual.sprite[id]
+            local sp = s_pos and s_pos.spatial or spatial(0, 0)
             self:child(statup, value > prev)
                 :set_im(im)
-                :set_origin(pos - vec2(0, 50))
+                :set_origin(
+                    base_pos - vec2(0, 50)
+                    + vec2(s_pos.spatial.x, s_pos.spatial.y)
+                )
                 :set_value(math.abs(value - prev))
         end)
     end

@@ -33,9 +33,9 @@ function battle:create()
     set_stat(
         "ability", id,
         list(
-            ability("attack"),
-            ability("stoneskin_oil"),
-            ability("acid")
+            ability("fencer.cut"),
+            ability("fencer.pierce"),
+            ability("potion")
         )
     )
     --set_stat("", id, 0)

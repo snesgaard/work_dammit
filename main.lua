@@ -14,7 +14,9 @@ id_gen = require "id_gen"
 vec2 = require "vec2"
 math = require "math"
 enum = require "enum"
+mechanics = require "game/mechanics"
 
+rng = love.math.random
 dict = Dictionary.create
 list = List.create
 event = Event.create

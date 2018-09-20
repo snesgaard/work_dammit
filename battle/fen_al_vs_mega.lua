@@ -27,16 +27,9 @@ function battle:create()
     set_stat(
         "ability", id,
         list(
-            ability("attack"),
-            ability("hailstorm"),
-            ability("charge"),
-            ability("shield")
-        )
-    )
-    set_stat(
-        "unlocked", id,
-        list(
-            ability("mass_shield")
+            ability("fencer.cut"),
+            ability("fencer.pierce"),
+            ability("potion")
         )
     )
 end

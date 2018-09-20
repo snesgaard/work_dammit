@@ -1,3 +1,5 @@
+local marker_sfx = require "sfx/marker"
+
 local marker = {}
 marker.__index = marker
 
@@ -113,7 +115,7 @@ function target.generic.create(self, candidates)
         candidates.primary:sort(sort_by_pos),
         candidates.secondary and candidates.secondary:sort(sort_by_pos)
     }
-    self.marker = process.create(marker)
+    self.marker = process.create(marker_sfx)
 
     self.on_select = Event.create()
     self.on_abort = Event.create()
@@ -122,6 +124,10 @@ function target.generic.create(self, candidates)
     self:set_batch(1)
 
     self:fork(self.control)
+end
+
+function target.generic.__update(self, dt)
+    self.marker:update(dt)
 end
 
 function target.generic.set_batch(self, batch)
@@ -138,6 +144,7 @@ function target.generic.set_target(self, target)
     local batch = self:get_batch()
     self.__target = math.cycle(target, 1, #batch)
     self.on_change(self:get_target())
+    self.marker:selection()
     return self
 end
 
@@ -169,19 +176,21 @@ end
 function target.generic.__draw(self)
     local target = self:get_target()
 
-    local function action(id)
-        local pos = nodes.position:get_world(id) - vec2(0, 75)
-        gfx.setColor(0, 0, 1)
-        gfx.rectangle("fill", pos.x, pos.y, 10, 10)
+    target = type(target) == "table" and target or {target}
+
+    local function get_pos(id)
+        return nodes.position:get_world(id) - vec2(0, 75)
     end
 
-    if type(target) == "table" then
-        for _, id in ipairs(target) do
-            action(id)
-        end
-    else
-        action(target)
+    local pos = {}
+
+    for _, id in pairs(target) do
+        local p = get_pos(id)
+        pos[#pos + 1] = p.x
+        pos[#pos + 1] = p.y
     end
+
+    self.marker:mass_draw(unpack(pos))
 end
 
 return target

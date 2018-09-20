@@ -114,13 +114,25 @@ function round_planner.__plan(self, actors)
         local action, target = get_action(id)
         if action then
             -- TODO Consider just removing the specific action
-            set_stat("unlocked", id, list())
             local name = action.name and action.name() or "Foobar"
             self.announcer = self:child(ui.textbox)
                 :set_width(500, 500)
                 :set_text(name)
                 :set_font(ui.font(20))
-            nodes.animation:add(action.run, id, target)
+
+            local function __do_run(handle, id, ...)
+                set_stat("unlocked", id, list())
+                action.run(handle, id, ...)
+                local ability = require "ability"
+                local u = list(unpack(action.unlock or {}))
+                    :map(function(p)
+                        print(p, ability(p).name())
+                        return ability(p)
+                    end)
+                set_stat("unlocked", id, u)
+            end
+
+            nodes.animation:add(__do_run, id, target)
             self:wait(nodes.animation.on_done)
             self.announcer:destroy()
             self.announcer = nil

@@ -151,6 +151,29 @@ function State:is_alive(id)
     return hp and hp > 0
 end
 
+function State:true_damage(attacker, defender, damage)
+    local hp = self.actor.health.current[defender]
+    local next_hp = math.max(0, hp - damage)
+    self:set_stat("health/current", defender, next_hp)
+
+
+    local effective_damage = hp - next_hp
+
+    local info = dict{
+        attacker = attacker,
+        defender = defender,
+        damage = effective_damage,
+        charged = false,
+        shielded = false,
+        miss = false,
+        crit = false,
+    }
+
+    self.event.on_damage(info)
+
+    return info
+end
+
 function State:damage(attacker, defender, damage)
     local agi_a = self:get_stat("agility", attacker) or 0
     local agi_d = self:get_stat("agility", defender) or 0

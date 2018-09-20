@@ -66,31 +66,59 @@ function control.select_target(self, index, action)
 
     -- Fectch cached target
     local function get_cached_target()
-        if not action or not action.target.type == "single" then return end
+        if (
+            not action or action.target.type == "all"
+            or action.target.type == "self"
+        ) then
+            return
+        elseif action.target.type == "multiple" then
+            local batch = self.get_target_cache(action, self.user)
+            if batch == 0 then return end
 
-        local id = self.get_target_cache(action, self.user)
-        if id == 0 then return end
-        local pos = nodes.position:get(id)
-
-        local l = list()
-        for b, t in pairs(self.target.__target_batches) do
-            for index, id in pairs(t) do
-                l[#l + 1] = {id = id, index = index, batch = b}
+            local function get_mean_index(batch)
+                return batch
+                    :map(function(id)
+                        return nodes.position:get(id) / #batch
+                    end)
+                    :reduce(function(a, b) return a + b end)
             end
+
+            local mean_index = get_mean_index(batch)
+
+            local batch = list(unpack(self.target.__target_batches))
+                :map(function(l)
+                    return get_mean_index(l:head())
+                end)
+                :map(function(i) return math.abs(i - mean_index) end)
+                :argsort()
+                :head()
+            return 0, 1, batch
+        elseif action.target.type == "single" then
+            local id = self.get_target_cache(action, self.user)
+            if id == 0 then return end
+            local pos = nodes.position:get(id)
+
+            local l = list()
+            for b, t in pairs(self.target.__target_batches) do
+                for index, id in pairs(t) do
+                    l[#l + 1] = {id = id, index = index, batch = b}
+                end
+            end
+
+            local function get_dist(ida)
+                local posa = nodes.position:get(ida)
+                return math.abs(posa - pos)
+            end
+
+            local last_target = l
+                :sort(function(a, b)
+                    return get_dist(a.id) < get_dist(b.id)
+                end)
+                :head()
+
+            return last_target.id, last_target.index, last_target.batch
         end
 
-        local function get_dist(ida)
-            local posa = nodes.position:get(ida)
-            return math.abs(posa - pos)
-        end
-
-        local last_target = l
-            :sort(function(a, b)
-                return get_dist(a.id) < get_dist(b.id)
-            end)
-            :head()
-
-        return last_target.id, last_target.index, last_target.batch
     end
 
     local last_id, last_index, last_batch = get_cached_target()
@@ -176,9 +204,28 @@ function Planner:spawn_menu(items, index)
         :set_items(items)
         :set_window_size(6)
         :set_selected(index)
+
+    local function get_help_text(action)
+        local s = action.help_text(self.user)
+        local u = action.unlock or {}
+        if #u == 0 then
+            return s
+        else
+            local ability = require "ability"
+            u = list(unpack(u))
+                :map(function(p) return ability(p) end)
+            local s2 = u:head().name()
+            u = u:erase(1)
+            for _, a in pairs(u) do
+                s2 = s2 .. ', ' .. a.name()
+            end
+            return s .. "\n\nUNLOCK: " .. s2
+        end
+    end
+
     local function help_callback(index, name, action)
         if action ~= nil and action.help_text then
-            self.tip:set_text(action.help_text(self.user))
+            self.tip:set_text(get_help_text(action))
         elseif action then
             self.tip:set_text("No help.")
         else

@@ -284,6 +284,9 @@ function list:cycle(offset)
     return ret
 end
 
-
+function list:print()
+    print(self)
+    return self
+end
 
 return list
