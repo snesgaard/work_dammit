@@ -7,10 +7,6 @@ local DAMAGE = 2
 
 local ability = {}
 
-ability.unlock = {
-    "fencer.taunt", "fencer.thunderstrike"
-}
-
 function ability.name()
     return "Dual Strike"
 end

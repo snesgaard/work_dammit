@@ -227,9 +227,9 @@ function Planner:spawn_menu(items, index)
         if action ~= nil and action.help_text then
             self.tip:set_text(get_help_text(action))
         elseif action then
-            self.tip:set_text("No help.")
+            self.tip:set_text("No help")
         else
-            self.tip:set_text("Skip your turn.")
+            self.tip:set_text("Skip your turn")
         end
     end
     help_callback(node:get_selected_item())

@@ -5,8 +5,8 @@ local target = require "ability/target"
 
 local ability = {}
 
-POWER = 4
-ARMOR = 4
+POWER = 2
+ARMOR = 2
 
 ability.target = {
     type = "single",

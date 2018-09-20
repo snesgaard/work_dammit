@@ -9,16 +9,13 @@ local HEAL = 5
 
 local potion = {}
 
-potion.unlock = {
-    "stoneskin_oil", "shield_tonic", "mass_potion"
-}
 
 function potion.name()
     return "Potion"
 end
 
 function potion.help_text(user)
-    return string.format("Restore %i health.", HEAL)
+    return string.format("Restore %i health", HEAL)
 end
 
 potion.target = {

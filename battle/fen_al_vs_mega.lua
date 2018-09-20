@@ -5,7 +5,7 @@ local target = require "ability/target"
 local battle = {}
 
 function battle:create()
-    local party = list(actor('fencer'), actor('alchemist'), actor('runesmith'))
+    local party = list(actor('fencer'), actor('alchemist'))
     local foes = list(actor('megabox'))
 
     local party_id, foe_id = game.setup.actor.full(party, foes)
@@ -29,7 +29,9 @@ function battle:create()
         "ability", id,
         list(
             ability("fencer.cut"),
-            ability("fencer.pierce"),
+            ability("fencer.hamstring"),
+            ability("fencer.evade"),
+            ability("fencer.embolden"),
             ability("potion")
         )
     )

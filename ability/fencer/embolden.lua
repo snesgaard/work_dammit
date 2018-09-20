@@ -5,10 +5,15 @@ local target = require "ability/target"
 
 local ability = {}
 
-local POWER = 4
+local POWER = 2
+local ARMOR = 2
+
+ability.unlock = {
+    "fencer.triplestrike"
+}
 
 ability.target = {
-    type = "single",
+    type = "self",
     primary = target.same_side,
     condition = function(index, id, user)
         return target.is_alive(id)
@@ -21,7 +26,7 @@ end
 
 function ability.help_text()
     return string.format(
-        "Give CHARGE and %i POWER", POWER
+        "You gain %i POWER and lose %i ARMOR", POWER, ARMOR
     )
 end
 
@@ -30,8 +35,8 @@ function ability.run(handle, caster, target)
     local sfx = nodes.sfx:child(charge_sfx, target, "red")
     handle:wait(sfx.on_finish)
     sfx:destroy()
-    set_stat("charge", target, 1)
     map_stat("power", target, mechanics.add_stat(POWER))
+    map_stat("armor", target, mechanics.add_stat(-ARMOR))
     sa:set_animation("idle")
 end
 

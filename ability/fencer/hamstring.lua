@@ -3,13 +3,13 @@ local ease = require "ease"
 local slash = require "sfx/slash"
 local melee_attack = require "animation/melee_attack"
 
-local DAMAGE = 2
-local AGILITY = 3
+local DAMAGE = 1
+local AGILITY = 2
 
 local ability = {}
 
 ability.unlock = {
-    "fencer.parry", "fencer.embolden"
+    "fencer.evadeslash"
 }
 
 function ability.name()
