@@ -219,7 +219,11 @@ function Planner:spawn_menu(items, index)
             for _, a in pairs(u) do
                 s2 = s2 .. ', ' .. a.name()
             end
-            return s .. "\n\nUNLOCK: " .. s2
+            if #s > 0 then
+                return s .. "\n\nUNLOCK: " .. s2
+            else
+                return "UNLOCK: " .. s2
+            end
         end
     end
 

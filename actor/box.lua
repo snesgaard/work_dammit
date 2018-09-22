@@ -78,7 +78,7 @@ function box.init_state(state, id)
     state.health.max[id] = 8
     state.health.current[id] = 8
     state.power[id] = 1
-    state.agility[id] = 1
+    state.agility[id] = 2
     state.armor[id] = 3
     state.script[id] = ai
     state.name[id] = "Normal Box"

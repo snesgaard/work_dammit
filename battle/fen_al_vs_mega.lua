@@ -17,10 +17,10 @@ function battle:create()
     set_stat(
         "ability", id,
         list(
-            ability("attack"),
-            ability("potion"),
-            ability("acid"),
-            ability("mix/base")
+            ability("alchemist.brew"),
+            ability("alchemist.blue_shift"),
+            ability("alchemist.red_shift"),
+            ability("potion")
         )
     )
 
