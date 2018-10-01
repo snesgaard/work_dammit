@@ -123,6 +123,7 @@ function Node:__update(dt) end
 function Node:__draw() end
 
 function Node:fork(f, ...)
+    if not f then return end
     -- Insert a reference to self as first argument
     local co = coroutine.create(f)
     -- Maybe it is unnecessary to

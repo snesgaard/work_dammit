@@ -1,6 +1,6 @@
 local game = require "game"
 
-local friend_type = require "actor/fencer"
+local friend_type = require "actor/golem"
 local target_type = require "actor/box"
 local target = require "ability/target"
 lume = require "modules/lume"

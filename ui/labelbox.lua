@@ -50,7 +50,7 @@ function labelbox:create()
         }
     }
     local foo = "Deal 1 damage.\n\nIf armor is greater than 4."
-    self:set_text(foo):set_title("HELP")
+    self:set_text(foo):set_title("HELP"):set_theme()
 end
 
 function labelbox:set_width(min, max)
@@ -80,20 +80,6 @@ function labelbox:structure()
         inner:expand(self.margin.text.outer)
     )
 
-    --[[
-    local title = spatial.create(0, 0, 75, 15)
-        :xalign(inner, "center", "center")
-        :yalign(inner, "bottom", "top")
-        :move(0, -self.margin.title.inner - 2)
-    self.ui.label.title:set_spatial(title)
-    self.ui.inner_frame.title:set_spatial(
-        title:expand(self.margin.title.inner)
-    )
-    self.ui.outer_frame.title:set_spatial(
-        title:expand(self.margin.title.inner):expand(self.margin.title.outer)
-    )
-    ]]--
-
     self.border = spatial.join(
         self.ui.outer_frame.text:get_spatial()
     )
@@ -122,6 +108,33 @@ end
 function labelbox:set_font(font)
     self.ui.label.text:set_font(font)
     return self:structure()
+end
+
+function labelbox:set_theme(theme)
+    theme = theme or "white"
+
+    local __themes = {
+        white = {
+            outer_frame = {0.55, 0.55, 0.55},
+            inner_frame = {1, 1, 1},
+            label = {0, 0, 0},
+        },
+        blue = {
+            inner_frame = {0.0, 0.0, 0.2, 0.3},
+            outer_frame = {0.0, 0.0, 0.1, 0.3},
+            label = {1, 1, 1}
+        }
+    }
+
+    local t = __themes[theme]
+
+    if t then
+        for key, val in pairs(t) do
+            self.ui[key].text:set_color(unpack(val))
+        end
+    end
+
+    return self
 end
 
 function labelbox:__draw(x, y)

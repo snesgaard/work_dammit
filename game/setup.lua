@@ -15,6 +15,7 @@ function setup.init_battle()
     visual = {
         sprite = {},
         ui = {},
+        ui_offset = {},
         atlas = {},
         icon = {},
     }
@@ -52,6 +53,7 @@ function setup.init_battle()
 
     nodes.damage_number = process.create(ui.damage_number)
     nodes.char_monitor = process.create(ui.char_monitor)
+    nodes.enrage_monitor = process.create(ui.enrage_monitor)
     nodes.sfx = process.create()
 
     nodes.charge = process.create(sfx.manager.charge)

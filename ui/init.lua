@@ -8,5 +8,6 @@ return {
     damage_number = require "ui/damagenumber",
     turn_row = require "ui/turn_row",
     font = require "ui/fonts",
-    char_monitor = require "ui/char_monitor"
+    char_monitor = require "ui/char_monitor",
+    enrage_monitor = require "ui/enrage_monitor"
 }

@@ -14,7 +14,9 @@ end
 
 function Sprite:draw(x, y, r, sx, sy)
     if not self.__draw_frame then return end
-    gfx.setColor(unpack(self.color))
+    if self.color then
+        gfx.setColor(unpack(self.color))
+    end
     local amp = self.shake_data.amp
     local phase = self.shake_data.phase
     x = (x or 0) + self.spatial.x + math.sin(phase) * amp

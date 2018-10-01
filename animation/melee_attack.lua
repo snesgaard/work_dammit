@@ -8,9 +8,10 @@ return function(handle, attacker, target, on_strike, stay)
 
     local sa = visual.sprite[attacker]
     local st = visual.sprite[target]
-
+    local s = pa.x > pt.x and -1 or 1
     local so = vec2(sa.spatial.x, sa.spatial.y)
-    local offset = pt - pa - vec2(sa:attack_offset(), 0)
+    local offset = pt - pa - s * vec2(sa:attack_offset(), 0)
+
 
     local speed = 1200.0
     local in_time = (0.75 * (offset - so):length() + 100) / speed
