@@ -142,10 +142,17 @@ end
 
 function target.generic.set_target(self, target)
     local batch = self:get_batch()
-    self.__target = math.cycle(target, 1, #batch)
-    self.on_change(self:get_target())
-    self.marker:selection()
-    return self
+    if target < 1 then
+        self:set_batch(self.__batch + 1)
+        return self:set_target(#self:get_batch())
+    elseif target > #batch then
+        return self:set_batch(self.__batch - 1)
+    else
+        self.__target = math.cycle(target, 1, #batch)
+        self.on_change(self:get_target())
+        self.marker:selection()
+        return self
+    end
 end
 
 function target.generic.get_target(self)
