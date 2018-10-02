@@ -128,7 +128,7 @@ function menu:control()
         elseif key == "space" then
             self.on_select(self:get_selected_item())
             return true
-        elseif key == "backspace" then
+        elseif key == "escape" then
             self.on_abort()
             return true
         end

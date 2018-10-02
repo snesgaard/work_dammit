@@ -171,7 +171,7 @@ function target.generic.control(self)
         self:set_batch(self.__batch + 1)
     elseif key == "space" then
         self.on_select(self:get_target())
-    elseif key == "backspace" then
+    elseif key == "escape" then
         self.on_abort()
     end
 

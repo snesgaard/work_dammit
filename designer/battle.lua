@@ -118,7 +118,7 @@ end
 local keyrepeaters = {}
 
 local function keypressed(key, scancode, isrepeat)
-    if key == "escape" then love.event.quit() end
+    if key == "backspace" then love.event.quit() end
     if key == "p" then
         for _, s in pairs(visual.sprite) do
             s:shake()
