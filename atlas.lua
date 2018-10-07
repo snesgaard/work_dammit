@@ -130,12 +130,18 @@ local function read_file(path)
 end
 
 local function read_json(positional, path)
-    if love.filesystem.exists(path) then
-        return json.decode(path)
+    local data, err = love.filesystem.newFileData(path)
+    if data:getExtension() == 'json' then
+        return json.decode(love.filesystem.read(path))
     else
         return {
-            x = -1, y = -1, w = positional.w + 2, h = positional.h + 2,
-            duration = 1000, spriteSourceSize = {x = 0, y = 0}
+            frames = {
+                {
+                    frame = {x = -1, y = -1, w = positional.w + 2, h = positional.h + 2},
+                    duration = 1000, spriteSourceSize = {x = 0, y = 0}
+                }
+            },
+            meta = {slices = {}, frameTags = {}}
         }
     end
 end
@@ -240,6 +246,10 @@ function Atlas:sprite(aliases)
 end
 
 function Atlas:draw(frame, origin, x, y, r, sx, sy)
+    if type(frame) == "string" then
+        local f = self:get_animation(frame)
+        return self:draw(f:head(), nil, origin, x, y, r, sx, sy)
+    end
     local cx, cy = 0, 0
     if origin and frame.hitbox[origin] then
         local center = frame.hitbox[origin]
