@@ -129,6 +129,17 @@ local function read_file(path)
     return info and require(path) or {}
 end
 
+local function read_json(positional, path)
+    if love.filesystem.exists(path) then
+        return json.decode(path)
+    else
+        return {
+            x = -1, y = -1, w = positional.w + 2, h = positional.h + 2,
+            duration = 1000, spriteSourceSize = {x = 0, y = 0}
+        }
+    end
+end
+
 function Atlas.create(path)
     local sheet = gfx.newImage(path .. "/atlas.png")
     local index = require (path   .. "/index")
@@ -151,7 +162,7 @@ function Atlas.create(path)
         local frame_hitbox_mask = atlas_hitbox_mask[name] or {}
 
         local data_path = path .. '/' .. positional.data
-        local data = json.decode(love.filesystem.read( data_path ))
+        local data = read_json(positional, data_path )
         local frames = List.create()
         for _, f in ipairs(data.frames) do
             local x = f.frame.x + positional.x + 1

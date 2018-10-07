@@ -1,0 +1,16 @@
+Drain:
+  Deal 5 damage and heal 5
+Bloodstrike:
+  Deal 5 damage twice and take 5 damage
+Bloodlust:
+  Gain shield and charge. Set health to 1.
+  Rejuvenating Vitae:
+    Party heals for missing HP
+  Sanguine Rage: (loop)
+    Deal missing health in damage.
+Focii:
+  Gain 2 ARMOR
+  Batswarm:
+    Deal 5 damage at the end of each round for three rounds
+  Lupine Bolster:
+    Party gains 3 POWER

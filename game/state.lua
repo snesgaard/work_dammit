@@ -243,4 +243,25 @@ function State:heal(caster, target, heal)
     return info
 end
 
+function State:true_heal(caster, target, heal)
+    heal = math.max(0, heal)
+    local hp = self.actor.health.current[target]
+    local max_hp = self.actor.health.max[target]
+    local next_hp = math.clamp(hp + heal, 0, max_hp)
+
+    self:set_stat("health/current", target, next_hp)
+
+    local effective_heal = next_hp - hp
+
+    local info = dict{
+        caster = caster,
+        target = target,
+        heal = effective_heal
+    }
+
+    self.event.on_heal(info)
+
+    return info
+end
+
 return State

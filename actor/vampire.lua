@@ -6,10 +6,43 @@ local animations = {}
 
 function animations.idle(sprite, dt, prev)
     if prev == animations.cast then
-        --dt = sprite:play(dt, "gunner_cast/cast2idle")
+        dt = sprite:play(dt, "vampire_cast/cast2idle")
     end
     local rng = love.math.random
     sprite:loop(dt, "vampire_idle", rng(1, 8))
+end
+
+function animations.chant(sprite, dt)
+    dt = sprite:play(dt, "vampire_cast/idle2chant")
+    sprite:loop(dt, "vampire_cast/chant")
+end
+
+function animations.cast(sprite, dt)
+    dt = sprite:play(dt, "vampire_cast/chant2cast")
+    sprite:loop(dt, "vampire_cast/cast")
+end
+
+function animations.dash(sprite, dt)
+    sprite:loop(dt, "vampire_dash/dash")
+end
+
+function animations.attack(sprite, dt)
+    dt = sprite:play(dt, "vampire_dash/windup")
+    sprite.on_user("attack")
+    dt = sprite:play(dt, "vampire_dash/attack")
+    sprite.on_user("done")
+    sprite:loop(dt, "vampire_dash/post_attack")
+end
+
+function animations.evade(sprite, dt)
+    sprite:loop(dt, "vampire_dash/evade")
+end
+
+local function attack_offset(sprite)
+    local frames = sprite.atlas:get_animation("vampire_dash/attack")
+    local origin = frames:head().hitbox.origin
+    local attack = frames:head().hitbox.attack
+    return math.ceil(attack.cx - origin.cx) * sprite.scale
 end
 
 local actor = {}
@@ -18,22 +51,25 @@ function actor.init_visual(state, id)
     local atlas = get_atlas("art/main_actors")
     local Sprite = require "animation/sprite"
     state.sprite[id] = Sprite.create(atlas, animations)
+    state.sprite[id].attack_offset = attack_offset
 end
 
 function actor.init_state(state, id)
-    state.health.max[id] = 80
+    state.health.max[id] = 15
     --state.health.current[id] = 80
-    state.power[id] = 4
-    state.armor[id] = 3
-    state.agility[id] = 1
+    state.power[id] = 2
+    state.armor[id] = 2
+    state.agility[id] = 3
     state.name[id] = "Kindred"
     state.ability[id] = list(
         ability("attack")
     )
 end
 
+
+
 function actor.__tostring()
-    return "Rune Smith"
+    return "Vampire"
 end
 
 actor.__index = actor

@@ -94,10 +94,7 @@ function love.draw()
     gfx.setColor(1, 1, 1)
     bg:draw(0, 0, 2, 2)
 
-    for id, s in pairs(visual.sprite) do
-        local pos = nodes.position:get_world(id)
-        s:draw(pos:unpack())
-    end
+    nodes.sprite_server:draw()
 
     nodes.sfx:draw()
     nodes.charge:draw()
@@ -113,6 +110,10 @@ function love.draw()
     nodes.battle_planner:draw()
     nodes.round_planner:draw()
     nodes.turn:draw()
+
+    local atlas = get_atlas("art/icons")
+    gfx.setColor(1, 1, 1)
+    atlas:draw("shield", 100, 100)
 end
 
 local keyrepeaters = {}

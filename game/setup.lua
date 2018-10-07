@@ -55,6 +55,7 @@ function setup.init_battle()
     nodes.char_monitor = process.create(ui.char_monitor)
     nodes.enrage_monitor = process.create(ui.enrage_monitor)
     nodes.sfx = process.create()
+    nodes.sprite_server = process.create(ui.sprite_server)
 
     nodes.charge = process.create(sfx.manager.charge)
     nodes.turn = process.create(ui.turn_row)

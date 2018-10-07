@@ -122,6 +122,7 @@ function round_planner.__plan(self, actors)
 
             local function __do_run(handle, id, ...)
                 set_stat("unlocked", id, list())
+                nodes.sprite_server:priority(id)
                 action.run(handle, id, ...)
                 local ability = require "ability"
                 local u = list(unpack(action.unlock or {}))
@@ -129,6 +130,7 @@ function round_planner.__plan(self, actors)
                         print(p, ability(p).name())
                         return ability(p)
                     end)
+                nodes.sprite_server:priority()
                 set_stat("unlocked", id, u)
             end
 

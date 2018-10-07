@@ -6,7 +6,7 @@ local battle = {}
 
 function battle:create()
     local party = list(
-        actor('fencer'), actor('alchemist')
+        actor('fencer'), actor('alchemist'), actor("vampire")
     )
     local foes = list(actor('golem'))
 
@@ -15,7 +15,7 @@ function battle:create()
     set_stat("power", foe_id:head(), 6)
     set_stat("armor", foe_id:head(), 2)
 
-    local id = party_id:tail()
+    local id = party_id[2]
     set_stat(
         "ability", id,
         list(
@@ -27,7 +27,7 @@ function battle:create()
         )
     )
 
-    local id = party_id:head()
+    local id = party_id[1]
     set_stat(
         "ability", id,
         list(
@@ -36,6 +36,16 @@ function battle:create()
             ability("fencer.evade"),
             ability("fencer.embolden"),
             ability("potion")
+        )
+    )
+
+    local id = party_id[3]
+    set_stat(
+        "ability", id,
+        list(
+            ability("vampire.drain"),
+            ability("vampire.bloodstrike"),
+            ability("vampire.bloodlust")
         )
     )
 end
