@@ -194,7 +194,7 @@ function State:damage(attacker, defender, damage)
     s = miss and 0 or s
     s = crit and s * 2 or s
 
-    damage = math.max(0, s * (damage + power) - armor)
+    damage = math.max(0, s * (damage + power - armor))
     local hp = self.actor.health.current[defender]
     local next_hp = math.max(0, hp - damage)
 

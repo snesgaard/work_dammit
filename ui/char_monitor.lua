@@ -67,6 +67,7 @@ end
 
 function monitor:hp_callback()
     return function(id, value)
+        -- Alive callback should also be a thing here
         if value > 0 then return end
 
         nodes.game:set_stat("shield", id, 0)

@@ -119,6 +119,7 @@ local function draw_pause(x, y, w, h)
 end
 
 function love.draw()
+    nodes.minion:draw()
     for id, s in pairs(visual.sprite) do
         local pos = nodes.position:get_world(id)
         s:draw(pos:unpack())

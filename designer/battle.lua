@@ -90,9 +90,40 @@ function love.update(dt)
     end
 end
 
+local minion_canvas = gfx.newCanvas(gfx.getWidth(), gfx.getHeight())
+
+local shader_str = [[
+   vec4 effect (vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
+       vec4 t = Texel(texture, texture_coords);
+       if (t.a < 0.05) {
+          // a discarded pixel wont be applied as the stencil.
+          discard;
+       }
+      return t * color;
+   }
+]]
+local minion_shader = gfx.newShader(shader_str)
+
 function love.draw()
     gfx.setColor(1, 1, 1)
     bg:draw(0, 0, 2, 2)
+
+    gfx.setCanvas(minion_canvas)
+    gfx.clear(0, 0, 0, 0)
+    nodes.minion:draw()
+
+    gfx.setCanvas()
+
+    gfx.setShader(minion_shader)
+    gfx.stencil(function()
+        gfx.setColorMask(true, true, true, true)
+        gfx.draw(minion_canvas, 0, 0)
+    end)
+    gfx.setStencilTest("equal", 1)
+    gfx.setColor(0.2, 0.4, 0.8, 0.075)
+    gfx.rectangle("fill", 0, 0, gfx.getWidth(), gfx.getHeight())
+    gfx.setStencilTest()
+    gfx.setShader()
 
     nodes.sprite_server:draw()
 
@@ -110,10 +141,7 @@ function love.draw()
     nodes.battle_planner:draw()
     nodes.round_planner:draw()
     nodes.turn:draw()
-
-    local atlas = get_atlas("art/icons")
-    gfx.setColor(1, 1, 1)
-    atlas:draw("shield", 100, 100)
+    nodes.announcer:draw(gfx.getWidth() / 2, 0)
 end
 
 local keyrepeaters = {}

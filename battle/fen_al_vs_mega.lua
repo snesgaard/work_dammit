@@ -1,6 +1,7 @@
 local actor = require "actor"
 local ability = require "ability"
 local target = require "ability/target"
+local minion = require "minion"
 
 local battle = {}
 
@@ -45,7 +46,8 @@ function battle:create()
         list(
             ability("vampire.drain"),
             ability("vampire.bloodstrike"),
-            ability("vampire.bloodlust")
+            ability("vampire.bloodlust"),
+            ability("vampire.summon_bat")
         )
     )
 end

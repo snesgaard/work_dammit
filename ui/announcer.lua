@@ -16,6 +16,7 @@ function announcer:create()
         :set_font(font(20))
 
     self.__awake = event()
+    self.__on_abort = event()
 
     self:__center()
 
@@ -27,6 +28,17 @@ function announcer:queue(message)
 
     self.__queue[#self.__queue + 1] = message
 
+    self.__awake()
+
+    return self
+end
+
+function announcer:push(message)
+    if not message then return self end
+
+    self.__queue = self.__queue:insert(message, 1)
+
+    self.__on_abort()
     self.__awake()
 
     return self
@@ -49,23 +61,23 @@ function announcer:__control()
         self:__center()
         local h = self.textbox:get_spatial().h
         local tween = Timer.tween(
-            0.2,
+            0.1,
             {
                 [self.textbox.__transform.pos] = {y = h + 15}
             }
         )
         self:wait(tween)
 
-        self:wait(2.0)
+        self:wait(2.0, self.__on_abort)
 
         local tween = Timer.tween(
-            0.2,
+            0.1,
             {
                 [self.textbox.__transform.pos] = {y = 0}
             }
         )
         self:wait(tween)
-        self:wait(0.2)
+        self:wait(0.1)
     end
 
     while #self.__queue > 0 do

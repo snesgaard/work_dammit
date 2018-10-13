@@ -25,7 +25,7 @@ end
 function battle_planner.control(self)
     local actors = nodes.position.placements:values()
     nodes.round_planner:submit(actors)
-    local battle_active = self:wait(nodes.round_planner.on_round_finish)
+    local battle_active = self:wait(nodes.round_planner.on_round_end)
 
     local party_alive = is_alive("party")
 

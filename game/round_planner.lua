@@ -9,10 +9,10 @@ function round_planner:__tostring()
 end
 
 function round_planner.create(self)
-    self.on_round_finish = Event.create()
+    self.on_round_end = Event.create()
     self.on_round_begin = Event.create()
     self.on_turn_begin = Event.create()
-    self.on_turn_finish = Event.create()
+    self.on_turn_end = Event.create()
 end
 
 function round_planner.submit(self, actors)
@@ -108,17 +108,18 @@ function round_planner.__plan(self, actors)
     self.on_round_begin(actors)
 
     for i, id in ipairs(actors) do
-        self.on_turn_begin(i, id)
-
         self.active_actor = id
         local action, target = get_action(id)
+
+        self.on_turn_begin(i, id)
         if action then
             -- TODO Consider just removing the specific action
             local name = action.name and action.name() or "Foobar"
-            self.announcer = self:child(ui.textbox)
-                :set_width(500, 500)
-                :set_text(name)
-                :set_font(ui.font(20))
+            --self.announcer = self:child(ui.textbox)
+            --    :set_width(500, 500)
+            --    :set_text(name)
+            --    :set_font(ui.font(20))
+            nodes.announcer:push(name)
 
             local function __do_run(handle, id, ...)
                 set_stat("unlocked", id, list())
@@ -135,19 +136,19 @@ function round_planner.__plan(self, actors)
             end
 
             nodes.animation:add(__do_run, id, target)
-            self:wait(nodes.animation.on_done)
-            self.announcer:destroy()
+            --self.announcer:destroy()
             self.announcer = nil
         end
+        self.on_turn_end(i, id)
+
         nodes.turn:pop()
         nodes.turn:set_selected(#actors - i)
         self.active_actor = nil
-
-        self.on_turn_finish(i, id)
+        self:wait(nodes.animation:for_finish())
     end
 
     self.plan = nil
-    self.on_round_finish(self:battle_active())
+    self.on_round_end(self:battle_active())
 end
 
 local function is_alive(faction)

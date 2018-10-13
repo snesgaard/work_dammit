@@ -27,6 +27,8 @@ function setup.init_battle()
 
     nodes.game = process.create(state)
 
+    nodes.minion = process.create(require "game/minion_manager")
+
     -- Create shortcuts
     function get_atlas(path)
         if not visual.atlas[path] then
@@ -59,6 +61,7 @@ function setup.init_battle()
 
     nodes.charge = process.create(sfx.manager.charge)
     nodes.turn = process.create(ui.turn_row)
+    nodes.announcer = process.create(ui.announcer)
 
     nodes.game.event.on_damage:listen(function(info)
         if not info.miss and not info.shield and info.damage > 0 then
