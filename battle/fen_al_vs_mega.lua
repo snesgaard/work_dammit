@@ -47,7 +47,7 @@ function battle:create()
             ability("vampire.drain"),
             ability("vampire.bloodstrike"),
             ability("vampire.bloodlust"),
-            ability("vampire.summon_bat")
+            ability("vampire.chant_summon")
         )
     )
 end

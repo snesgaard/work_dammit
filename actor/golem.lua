@@ -103,7 +103,7 @@ function actor.init_visual(state, id)
 end
 
 function actor.init_state(state, id)
-    state.health.max[id] = 80
+    state.health.max[id] = 0 * 80 + 1
     state.power[id] = 0
     state.armor[id] = 0
     state.agility[id] = 0

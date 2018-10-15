@@ -108,6 +108,7 @@ function round_planner.__plan(self, actors)
     self.on_round_begin(actors)
 
     for i, id in ipairs(actors) do
+        print("what?", id)
         self.active_actor = id
         local action, target = get_action(id)
 
@@ -145,6 +146,10 @@ function round_planner.__plan(self, actors)
         nodes.turn:set_selected(#actors - i)
         self.active_actor = nil
         self:wait(nodes.animation:for_finish())
+
+        if not self:battle_active() then
+            break
+        end
     end
 
     self.plan = nil
