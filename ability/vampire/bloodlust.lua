@@ -23,7 +23,7 @@ end
 
 function ability.help_text()
     return string.format(
-        "You gain shield and charge. Set your health to 1."
+        "You gain charge and set your health to 1."
     )
 end
 
@@ -33,7 +33,6 @@ function ability.run(handle, caster, target)
     handle:wait(sfx.on_finish)
     sfx:destroy()
     set_stat("charge", target, 1)
-    set_stat("shield", target, 1)
     local hp = get_stat("health/current", target)
     nodes.game:true_damage(caster, target, hp - 1)
 
