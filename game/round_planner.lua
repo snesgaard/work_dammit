@@ -107,8 +107,12 @@ function round_planner.__plan(self, actors)
 
     self.on_round_begin(actors)
 
+    self:wait(nodes.animation:for_finish())
+
+    if not self:battle_active() then
+        return self.on_round_end(self:battle_active())
+    end
     for i, id in ipairs(actors) do
-        print("what?", id)
         self.active_actor = id
         local action, target = get_action(id)
 
@@ -153,7 +157,7 @@ function round_planner.__plan(self, actors)
     end
 
     self.plan = nil
-    self.on_round_end(self:battle_active())
+    return self.on_round_end(self:battle_active())
 end
 
 local function is_alive(faction)

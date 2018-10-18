@@ -27,10 +27,30 @@ function ability.help_text()
     )
 end
 
+local function apply_explosion_damage(handle, caster, target)
+    local index = nodes.position:get(target)
+
+    local all = nodes.position.placements
+        :filter(function(i, id)
+            return i * index > 0
+        end)
+        :values()
+
+    print(all)
+    for _, id in pairs(all) do
+        print(id)
+        nodes.game:damage(caster, id, DAMAGE)
+    end
+end
+
 function ability.run(handle, caster, target)
     local hb, sa = common.cast(handle, caster)
 
-    nodes.minion:set(target, minion("alch_bomb"))
+    local function cb(handle, target)
+        apply_explosion_damage(handle, caster, target)
+    end
+
+    nodes.minion:set(target, minion("alch_bomb"), cb)
     handle:wait(0.4)
 
     sa:set_animation("idle")

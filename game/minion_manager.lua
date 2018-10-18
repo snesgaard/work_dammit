@@ -68,7 +68,15 @@ function server:on_round_begin(id, action)
 end
 
 function server:on_round_end(id, action)
+    -- TODO Find a way to clear this callback easily
+    local cb = self:__get_callbacks(id)
 
+    local function callback(active)
+        if not active then return end
+        nodes.animation:add(action, self.__minions[id], id)
+    end
+
+    cb.on_round_end = nodes.round_planner.on_round_end:listen(callback)
 end
 
 return server

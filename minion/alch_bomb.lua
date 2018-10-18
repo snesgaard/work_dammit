@@ -50,9 +50,10 @@ function bomb:entry()
     ):ease(ease.inQuad)
 end
 
-function bomb:create(manager, id)
+function bomb:create(manager, id, on_explosion)
     self.master = id
     self.manager = manager
+    self.on_explosion = on_explosion
     self.sprites = {
         bomb = sprite.create(get_atlas("art/props"), animation)
                 :set_animation("bomb"),
@@ -69,7 +70,7 @@ function bomb:create(manager, id)
         lifetime = 0.5,
         acceleration = {0, 500},
         size = 0.25,
-        speed = 500,
+        speed = 750,
         area = {"uniform", 5, 0, math.pi},
         color = {
             1.0, 0.8, 0.6, 1,
@@ -92,34 +93,49 @@ function bomb:create(manager, id)
         self.transform:set("fuse", boxes.spark:center():unpack())
     end)
 
-    function self.sprites.bomb.on_explode()
-        self.sparks:stop()
-        Timer.tween(
-            0.25,
-            {
-                [self.sprites.bomb.color] = {1.0, 0, 0, 0},
-                [self.sprites.fuse.color] = {1.0, 0, 0, 0}
-            }
-        )
-        self:spawn_explosion()
-    end
+    manager:on_round_end(id, self.on_round_end)
+end
+
+function bomb.activate(handle, self, master)
+
 end
 
 function bomb:spawn_explosion()
-    self.explosion = self:child(explosion)
-    self.explosion.on_done:listen(function()
-        self.manager:set(id)
-    end)
+    return self:child(explosion)
 end
 
-function bomb.on_round_end(handle, self, master)
-    if self.count >= 3 then
-        self.sprites.bomb:set_animation("explode")
+function bomb.on_round_end(handle, self, master, active)
+    if self.count >= 1 then
+        return self:do_explosion(handle, master)
     else
         self.count = self.count + 1
         local anime = "fuse" .. self.count
         self.sprites.fuse:set_animation(anime)
     end
+end
+
+function bomb:do_explosion(handle, master)
+    nodes.announcer:push("Unstable Bomb")
+    self.sparks:stop()
+    self.sprites.bomb.on_explode = event()
+    self.sprites.bomb:set_animation("explode")
+
+    self:wait(self.sprites.bomb.on_explode)
+
+    self.on_explosion(handle, master)
+
+    local tween = Timer.tween(
+        0.25,
+        {
+            [self.sprites.bomb.color] = {1.0, 0, 0, 0},
+            [self.sprites.fuse.color] = {1.0, 0, 0, 0}
+        }
+    )
+    local explode = self:spawn_explosion()
+    self:wait(tween)
+    explode.on_done:listen(function()
+        self.manager:set(master)
+    end)
 end
 
 function bomb:__update(dt)
