@@ -107,6 +107,7 @@ local minion_shader = gfx.newShader(shader_str)
 function love.draw()
     gfx.setColor(1, 1, 1)
     bg:draw(0, 0, 2, 2)
+    nodes.sprite_server:draw()
 
     gfx.setCanvas(minion_canvas)
     gfx.clear(0, 0, 0, 0)
@@ -125,7 +126,7 @@ function love.draw()
     gfx.setStencilTest()
     gfx.setShader()
 
-    nodes.sprite_server:draw()
+
 
     nodes.sfx:draw()
     nodes.charge:draw()

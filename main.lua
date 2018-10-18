@@ -93,7 +93,8 @@ function love.load(arg)
         sfx = "designer/sfx",
         ability = "designer/ability",
         level = "designer/level",
-        sprite = "designer/sprite"
+        sprite = "designer/sprite",
+        minion = "designer/minion"
     }
 
     entry = entrymap[entry]

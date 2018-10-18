@@ -18,15 +18,19 @@ function server:set(id, type, ...)
     if type then
         local m = self:child(type, self, id, ...)
         local index = nodes.position:get(id)
-        local pos = nodes.position:get_world(id)
-        if index > 0 then
-            pos = pos - vec2(25, 0)
-        else
-            pos = pos + vec2(25, 0)
+        local pos = nodes.position:get_world(id) or vec2(0, 0)
+        if index then
+            if index > 0 then
+                pos = pos - vec2(50, 0)
+            else
+                pos = pos + vec2(50, 0)
+            end
         end
         local o = visual.ui_offset[id] or 0
-        m.__transform.pos = pos - vec2(0, 100 + o)
+        m.__transform.pos = pos - vec2(0, 0)
         self.__minions[id] = m
+
+        if m.entry then m:entry() end
     end
 end
 
