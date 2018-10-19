@@ -37,6 +37,7 @@ function row:add(im, name)
         self.items[index] = self:child(marker)
             :set_image(im)
             :set_text(name)
+            :set_title("Actor")
         self.offsets[index] = vec2(0, 1000)
         local tween = Timer.tween(
             0.1,
@@ -127,7 +128,9 @@ function row:draw(x, y)
             gfx.setColor(1.0, 1.0, 0.1, 0.5)
             local s2 = s:compile():expand(self.margin, self.margin)
             local x, y, w, h = s2:unpack()
-            gfx.rectangle("fill", x, y, w, h, 5)
+            -- Abit hacked toa ccount for title bloating labelbox size
+            -- Redo render here to use the actual shape of the box
+            gfx.rectangle("fill", x, y, w, h - 20, 5)
         end
         item:draw(x, y)
     end

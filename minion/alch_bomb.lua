@@ -105,7 +105,7 @@ function bomb:spawn_explosion()
 end
 
 function bomb.on_round_end(handle, self, master, active)
-    if self.count >= 1 then
+    if self.count >= 3 then
         return self:do_explosion(handle, master)
     else
         self.count = self.count + 1

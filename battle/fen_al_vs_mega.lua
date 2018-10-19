@@ -9,7 +9,7 @@ function battle:create()
     local party = list(
         actor('fencer'), actor('alchemist'), actor("vampire")
     )
-    local foes = list(actor('golem'), actor('golem'))
+    local foes = list(actor('golem'))
 
     local party_id, foe_id = game.setup.actor.full(party, foes)
 

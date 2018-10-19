@@ -17,6 +17,7 @@ function labelbox:create()
                 :set_font(font(12))
                 :set_align("center")
                 :set_valign("center")
+                :set_color(0.9, 0.9, 0.9)
         },
         inner_frame = {
             text = frame.create()
@@ -46,11 +47,11 @@ function labelbox:create()
         },
         title = {
             inner = 5,
-            outer = 10,
+            outer = 5,
         }
     }
     local foo = "Deal 1 damage.\n\nIf armor is greater than 4."
-    self:set_text(foo):set_title("HELP"):set_theme()
+    --self:set_text(foo):set_title(""):set_theme()
 end
 
 function labelbox:set_width(min, max)
@@ -80,9 +81,33 @@ function labelbox:structure()
         inner:expand(self.margin.text.outer)
     )
 
-    self.border = spatial.join(
-        self.ui.outer_frame.text:get_spatial()
+    local title = spatial.create(0, 0, w - 15, 15)
+        :xalign(inner, "center", "center")
+        :yalign(inner, "bottom", "top")
+        :move(0, -self.margin.title.inner - 2)
+
+    self.ui.label.title:set_spatial(title)
+    self.ui.inner_frame.title:set_spatial(
+        title:expand(self.margin.title.inner)
     )
+    self.ui.outer_frame.title:set_spatial(
+        title
+            :expand(self.margin.title.inner)
+            :expand(self.margin.title.outer)
+            :move(0, 3)
+    )
+
+    if self.ui.label.title.text ~= "" then
+
+        self.border = spatial.join(
+            self.ui.outer_frame.text:get_spatial(),
+            self.ui.outer_frame.title:get_spatial()
+        ):compile()
+    else
+        self.border = spatial.join(
+            self.ui.outer_frame.text:get_spatial()
+        ):compile()
+    end
     return self
 end
 
@@ -93,11 +118,14 @@ end
 
 function labelbox:set_title(title)
     self.ui.label.title:set_text(title)
-    return self
+    return self:structure()
 end
 
 function labelbox:get_spatial()
-    return self.ui.outer_frame.text:get_spatial()
+    if not self.border then
+        self:structure()
+    end
+    return self.border
 end
 
 function labelbox:set_spatial(spatial)
@@ -140,12 +168,19 @@ end
 function labelbox:__draw(x, y)
     x = (x or 0) + self.pos.x
     y = (y or 0) + self.pos.y
+    local t = self.ui.label.title.text
+    local draw_title = t~= ""
+
     self.ui.outer_frame.text:draw(x, y)
-    --self.ui.outer_frame.title:draw(x, y)
+    if draw_title then
+        self.ui.outer_frame.title:draw(x, y)
+    end
     self.ui.inner_frame.text:draw(x, y)
     --self.ui.inner_frame.title:draw(x, y)
     self.ui.label.text:draw(x, y)
-    --self.ui.label.title:draw(x, y)
+    if draw_title then
+        self.ui.label.title:draw(x, y)
+    end
 end
 
 return labelbox

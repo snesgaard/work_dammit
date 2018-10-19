@@ -8,6 +8,7 @@ function marker:test()
         gfx.newImage("art/armor.png")
     )
     self:set_text("The Action")
+        :set_title("Fencer")
 end
 
 function marker:create()
@@ -29,6 +30,12 @@ end
 
 function marker:set_text(text)
     self.text:set_text(text)
+    self:structure()
+    return self
+end
+
+function marker:set_title(title)
+    self.text:set_title(title)
     self:structure()
     return self
 end

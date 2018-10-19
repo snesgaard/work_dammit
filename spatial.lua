@@ -237,6 +237,10 @@ function SpatialCollection:compile()
     return self.border
 end
 
+function SpatialCollection:pos()
+    return self.border:pos()
+end
+
 function SpatialCollection:__tostring()
     return string.format("Joined :: %s", self.border:__tostring())
 end
