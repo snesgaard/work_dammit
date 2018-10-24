@@ -50,8 +50,17 @@ function labelbox:create()
             outer = 5,
         }
     }
-    local foo = "Deal 1 damage.\n\nIf armor is greater than 4."
     --self:set_text(foo):set_title(""):set_theme()
+end
+
+function labelbox:test()
+    self:set_width(200, 400)
+    local str = ""
+    str = str .. "Target\n\tSingle\n\n"
+    str = str .. "Effect\n\tDeal 5 damage.\n\tRestore 5 health to yourself.\n\n"
+    str = str .. "Condition\n\t3 or more POWER\n\n"
+    str = str .. "Cost\n\tLoose all POWER"
+    self:set_text(str):set_title("Drain")
 end
 
 function labelbox:set_width(min, max)

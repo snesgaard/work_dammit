@@ -31,13 +31,13 @@ function row:set_selected(s)
     return self
 end
 
-function row:add(im, name)
+function row:add(im, text, title)
     local function action(self)
         local index = #self.items + 1
         self.items[index] = self:child(marker)
             :set_image(im)
-            :set_text(name)
-            :set_title("Actor")
+            :set_text(text)
+            :set_title(title or "Actor")
         self.offsets[index] = vec2(0, 1000)
         local tween = Timer.tween(
             0.1,

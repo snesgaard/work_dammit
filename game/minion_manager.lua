@@ -72,11 +72,12 @@ function server:on_round_end(id, action)
     local cb = self:__get_callbacks(id)
 
     local function callback(active)
+        print("reaction!")
         if not active then return end
-        nodes.animation:add(action, self.__minions[id], id)
+        nodes.battle_planner:react(action, self.__minions[id], id)
     end
 
-    cb.on_round_end = nodes.round_planner.on_round_end:listen(callback)
+    cb.on_round_end = nodes.battle_planner.on_round_end:listen(callback)
 end
 
 return server
