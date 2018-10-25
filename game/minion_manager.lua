@@ -34,6 +34,10 @@ function server:set(id, type, ...)
     end
 end
 
+function server:is_alive(id, ref)
+    return self.__minions[id] == ref
+end
+
 function server:__get_callbacks(id)
     self.__callbacks[id] = self.__callbacks[id] or dict()
     return self.__callbacks[id]
@@ -71,13 +75,27 @@ function server:on_round_end(id, action)
     -- TODO Find a way to clear this callback easily
     local cb = self:__get_callbacks(id)
 
+    local ref = self.__minions[id]
+
     local function callback(active)
-        print("reaction!")
         if not active then return end
-        nodes.battle_planner:react(action, self.__minions[id], id)
+
+        self:react(action, id)
     end
 
     cb.on_round_end = nodes.battle_planner.on_round_end:listen(callback)
+end
+
+function server:react(action, id)
+    local ref = self.__minions[id]
+
+    local function wrapped_action(handle)
+        -- Control that miion is in fact still alive
+        if not self:is_alive(id, ref) then return end
+        return action(handle, ref, id)
+    end
+
+    nodes.battle_planner:react(wrapped_action)
 end
 
 return server
