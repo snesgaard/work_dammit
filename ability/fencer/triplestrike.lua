@@ -3,7 +3,7 @@ local ease = require "ease"
 local slash = require "sfx/slash"
 local melee_attack = require "animation/melee_attack"
 
-local DAMAGE = 1
+local DAMAGE = 3
 
 local ability = {}
 

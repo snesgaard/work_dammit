@@ -58,13 +58,13 @@ end
 function server:on_turn_end(id, action)
     local cb = self:__get_callbacks(id)
 
-    local function callback(i, actor)
+    local function callback(actor, used_action, targets)
         if actor ~= id then return end
 
-        nodes.animation:add(action, self.__minions[id], id)
+        self:react(action, id)
     end
 
-    cb.on_turn_end = nodes.round_planner.on_turn_end:listen(callback)
+    cb.on_turn_end = nodes.battle_planner.on_action_end:listen(callback)
 end
 
 function server:on_round_begin(id, action)
@@ -74,8 +74,6 @@ end
 function server:on_round_end(id, action)
     -- TODO Find a way to clear this callback easily
     local cb = self:__get_callbacks(id)
-
-    local ref = self.__minions[id]
 
     local function callback(active)
         if not active then return end

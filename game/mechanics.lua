@@ -2,7 +2,7 @@ local mechanics = {}
 
 function mechanics.map_stat(f)
     return function(v)
-        return math.clamp(f(v or 0), -9, 9)
+        return math.clamp(f(v or 0), 0, 5)
     end
 end
 

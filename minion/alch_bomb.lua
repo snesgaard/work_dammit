@@ -110,6 +110,9 @@ function bomb.on_round_end(handle, self, master, active)
     else
         self.count = self.count + 1
         local anime = "fuse" .. self.count
+        nodes.announcer:push(
+            string.format("Unstable Bomb: Countdown %i", 4 - self.count)
+        )
         self.sprites.fuse:set_animation(anime)
     end
 end

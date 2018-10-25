@@ -23,6 +23,7 @@ function battle:create()
 
     for _, id in ipairs(foe_id:body(1)) do
         set_stat("script", id, ai)
+        set_stat("armor", id, -9)
     end
 
     local id = party_id:head()

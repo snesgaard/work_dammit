@@ -68,7 +68,11 @@ function battle_planner:test()
 end
 
 function battle_planner.begin(self)
-    self:fork(self.do_round)
+    self:fork(self.handle_battle)
+end
+
+function battle_planner:handle_battle()
+    while self:do_round() do end
 end
 
 function battle_planner:do_round()
@@ -103,26 +107,49 @@ function battle_planner:do_round()
 
     self.on_round_end(true)
     self:handle_reaction()
+
+    return true
 end
 
-function battle_planner:handle_turn(id, action, target)
-    if not nodes.game:is_alive(id) then return end
-    self.on_action_begin(id, action, target)
+function battle_planner:handle_turn(id, action, targets)
+    if not nodes.game:is_alive(id) then
+        nodes.turn:pop()
+        return
+    end
+
+    local function get_target()
+        if not action then return end
+
+        local candidates = target.candidates(action.target, id)
+
+        return self.resample_target(
+            candidates, action.target.type, targets
+        )
+    end
+
+    targets = get_target()
+
+    self.on_action_begin(id, action, targets)
 
     set_stat("unlocked", id, list())
-    local name = action.name and action.name(id) or ""
-    nodes.announcer:push(name)
-    nodes.sprite_server:priority(id)
-    action.run(self, id, target)
-    local u = list(unpack(action.unlock or {}))
-        :map(function(p)
-            return ability(p)
-        end)
-    nodes.sprite_server:priority()
-    set_stat("unlocked", id, u)
+
+    if targets then
+        local name = action.name and action.name(id) or ""
+        nodes.announcer:push(name)
+        nodes.sprite_server:priority(id)
+
+        action.run(self, id, targets)
+        local u = list(unpack(action.unlock or {}))
+            :map(function(p)
+                return ability(p)
+            end)
+        nodes.sprite_server:priority()
+        set_stat("unlocked", id, u)
+    end
+
     nodes.turn:pop()
 
-    self.on_action_end(id, action, target)
+    self.on_action_end(id, action, targets)
 end
 
 function battle_planner:handle_reaction()
@@ -136,7 +163,8 @@ end
 function battle_planner:show_selected_action(id, action)
     local name = nodes.game:get_stat("name", id) or "Ehh"
     local icon = visual.icon[id] or gfx.newImage("art/armor.png")
-    nodes.turn:add(icon, action.name(id), name)
+    local action_name = action and action.name(id) or "Pass"
+    nodes.turn:add(icon, action_name, name)
 end
 
 function battle_planner:get_action(id)
@@ -195,20 +223,6 @@ function battle_planner:get_ai_action(id)
     end
 end
 
-function battle_planner.get_turn_order(actors)
-    local __agi_cache = {}
-    local rng = love.math.random
-
-    local function agility(id)
-        if not __agi_cache[id] then
-            __agi_cache[id] = nodes.game.actor.agility[id] + rng()
-        end
-        return __agi_cache[id]
-    end
-
-    return actors:sort(function(a, b) return agility(a) > agility(b) end)
-end
-
 local function is_alive(faction)
     local s = faction == "party" and 1 or -1
     return nodes.position.placements
@@ -252,7 +266,11 @@ function battle_planner.get_turn_order(actors)
         return __agi_cache[id]
     end
 
-    return actors:sort(function(a, b) return agility(a) > agility(b) end)
+    return actors
+        :filter(function(id)
+            return nodes.game:is_alive(id)
+        end)
+        :sort(function(a, b) return agility(a) > agility(b) end)
 end
 
 function battle_planner.round()
@@ -312,10 +330,14 @@ function battle_planner.resample_target(candidates, type, target, get_index)
 
     function similarity.multiple(a, b)
         local function add(a, b) return a + b end
-        print("a b", a, b)
+
         local ma = a:map(get_index):reduce(add, 0) / #a
         local mb = b:map(get_index):reduce(add, 0) / #b
-        return math.abs(ma - mb)
+        if ma * mb < 0 then
+            return math.huge
+        else
+            return math.abs(ma - mb)
+        end
     end
 
     function similarity.all(a, b)
@@ -324,7 +346,7 @@ function battle_planner.resample_target(candidates, type, target, get_index)
     end
 
     function similarity.self(a, b)
-        return a ~= b
+        return a == b and 0 or math.huge
     end
 
     local sf = similarity[type]
@@ -332,11 +354,16 @@ function battle_planner.resample_target(candidates, type, target, get_index)
     local elist = list()
 
     local pot_targets = candidates:values():reduce(elist.concat, elist)
-    print("potential", pot_targets)
+
     local score = pot_targets:map(function(v) return sf(v, target) end)
 
     local most_likely = score:argsort():head()
-    return pot_targets[most_likely]
+
+    local most_likely_score = score[most_likely]
+
+    if most_likely_score < 10000 then
+        return pot_targets[most_likely]
+    end
 end
 
 function battle_planner.is_finished(self)
