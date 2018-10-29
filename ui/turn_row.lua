@@ -101,7 +101,7 @@ end
 
 function row:structure()
     local prev = spatial(
-        gfx.getWidth() - 50 + self.margin, gfx.getHeight() / 2 - 25, 0, 0
+        gfx.getWidth() - 50 + self.margin, gfx.getHeight() - 250, 0, 0
     )
 
     local struct = list()

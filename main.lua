@@ -78,12 +78,14 @@ end
 nodes = {}
 
 function love.load(arg)
+    -- SET A BATTLE AS DEFALT
     arg = list(unpack(arg))
     gfx.setDefaultFilter("nearest", "nearest")
     nodes.root = process.create(root_node)
 
     local old_load = love.load
     local entry = arg[1] or "battle"
+    arg[2] = arg[2] or "battle/fen_al_vs_mega"
     log.info("Entering %s", entry)
 
     entry = entry:gsub('/', '')

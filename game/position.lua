@@ -5,7 +5,7 @@ position.__index = position
 function position.create(this, center)
     this.actors = Dictionary.create()
     this.placements = Dictionary.create()
-    this.center = center or vec2(800, 704)
+    this.center = center or vec2(625, 704)
     return setmetatable(this, position)
 end
 
@@ -76,7 +76,7 @@ end
 function position:get_world(arg)
     local _, place = self:pairget(arg)
     if not place then return end
-    local offset = vec2(-150 * place, 0)
+    local offset = vec2(-135 * place, 0)
     return self.center + offset
 end
 

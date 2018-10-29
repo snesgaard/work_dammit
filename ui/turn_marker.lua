@@ -17,7 +17,7 @@ function marker:create()
         :set_margin(3)
     self.text = self:child(textbox)
         :set_text("yo")
-        :set_width(125)
+        :set_width(200)
 
     self:structure()
 end

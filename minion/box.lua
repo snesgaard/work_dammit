@@ -21,7 +21,9 @@ function box.on_turn_end(handle, self, master)
     nodes.announcer:push("Bats")
     handle:wait(0.4)
     local info = nodes.game:true_damage(self, master, self.damage)
-    nodes.game:true_heal(self, self.caster, info.damage)
+    if nodes.game:is_alive(self.caster) then
+        nodes.game:true_heal(self, self.caster, info.damage)
+    end
 end
 
 function box:__update(dt)
