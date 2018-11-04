@@ -68,7 +68,10 @@ function alchemist.init_visual(state, id)
 
     state.atlas[atlas_path] = atlas
     state.sprite[id] = sprite
-    --state.icon[id] = gfx.newImage("art/fencer_icon.png")
+    state.icon[id] = function(x, y, w, h)
+        local icon_atlas = get_atlas("art/icons")
+        icon_atlas:draw("alchemist", x, y, 0, 2, 2)
+    end
 end
 
 function alchemist.init_state(state, id)

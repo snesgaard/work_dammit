@@ -174,7 +174,7 @@ function Atlas.create(path)
             local x = f.frame.x + positional.x + 1
             local y = f.frame.y + positional.y + 1
             local w, h = f.frame.w - 2, f.frame.h - 2
-            local quad = gfx.newQuad(x + 0.5, y + 0.5, w, h, unpack(dim))
+            local quad = gfx.newQuad(x, y, w, h, unpack(dim))
             local dt = f.duration / 1000.0
             local ox, oy = f.spriteSourceSize.x, f.spriteSourceSize.y
             frames[#frames + 1] = Frame.create(quad, ox, oy, dt)

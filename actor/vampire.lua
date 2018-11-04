@@ -52,6 +52,11 @@ function actor.init_visual(state, id)
     local Sprite = require "animation/sprite"
     state.sprite[id] = Sprite.create(atlas, animations)
     state.sprite[id].attack_offset = attack_offset
+
+    state.icon[id] = function(x, y, w, h)
+        local icon_atlas = get_atlas("art/icons")
+        icon_atlas:draw("vampire", x, y, 0, 2, 2)
+    end
 end
 
 function actor.init_state(state, id)
