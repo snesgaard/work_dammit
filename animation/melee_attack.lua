@@ -1,8 +1,10 @@
 local ease = require "ease"
 local slash = require "sfx/slash"
+local sfx = require "sfx"
 
-return function(handle, attacker, target, on_strike, stay)
+return function(handle, attacker, target, on_strike, stay, impact_sfx)
     stay = stay or false
+    impact_sfx = impact_sfx or sfx('slash')
     local pa = nodes.position:get_world(attacker)
     local pt = nodes.position:get_world(target)
 
@@ -45,7 +47,8 @@ return function(handle, attacker, target, on_strike, stay)
     --nodes.game:damage(attacker, target, DAMAGE)
     on_strike(handle, attacker, target)
     local pos = nodes.position:get_world(target) - vec2(0, 100)
-    nodes.sfx:child(slash):set_pos(pos)
+    local sfx_node = nodes.sfx:child(impact_sfx)
+    sfx_node.__transform.pos = pos
     wait_for_user_event("done")
 
     if not stay then

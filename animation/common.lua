@@ -5,7 +5,7 @@ function common.cast(handle, id, timeout)
     local sa = visual.sprite[id]
 
     sa:set_animation("chant")
-    handle:wait(0.5)
+    handle:wait(0.75)
     sa:set_animation("cast")
 
     local function wait_for_cast_hb(time_left)

@@ -1,7 +1,7 @@
 local game = require "game"
 
-local friend_type = require "actor/golem"
-local target_type = require "actor/box"
+local friend_type = require "actor/vampress"
+local target_type = require "actor/golem"
 local target = require "ability/target"
 lume = require "modules/lume"
 local lurker = require "modules/lurker"
@@ -119,6 +119,9 @@ local function draw_pause(x, y, w, h)
 end
 
 function love.draw()
+    gfx.setCanvas(nodes.post_process:front())
+    gfx.clear(0, 0, 0, 0)
+
     nodes.minion:draw()
     for id, s in pairs(visual.sprite) do
         local pos = nodes.position:get_world(id)
@@ -127,6 +130,8 @@ function love.draw()
 
     nodes.sfx:draw()
     nodes.charge:draw()
+    gfx.setCanvas()
+    nodes.post_process:draw()
     --nodes.shield:draw()
     nodes.damage_number:draw()
 

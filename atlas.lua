@@ -245,6 +245,16 @@ function Atlas:sprite(aliases)
     return Sprite.create(self, aliases)
 end
 
+function Atlas:get_quads(name)
+    local frames = self:get_animation(name)
+    if not frames then
+        log.warn("Unknown quads <%s>", name)
+        return
+    else
+        return frames:map(function(f) return f.quad end)
+    end
+end
+
 function Atlas:draw(frame, origin, x, y, r, sx, sy)
     if type(frame) == "string" then
         local f = self:get_animation(frame)

@@ -10,10 +10,16 @@ local argmap = dict{
     damp = "setLinearDamping",
     color = "setColors",
     acceleration = "setLinearAcceleration",
+    tangential_acceleration = "setTangentialAcceleration",
     relative_rotation = "setRelativeRotation",
     rotation = "setRotation",
     quad = "setQuads",
-    spin = "setSpin"
+    spin = "setSpin",
+    offset = "setOffset",
+    pos = "setPosition",
+    emit = "emit",
+    stop = "stop",
+    size_var= "setSizeVariation",
 }
 
 local function apply_api(particle, key, value)
@@ -38,6 +44,10 @@ local function apply_api(particle, key, value)
 end
 
 return function(arg)
+    if not arg.image and arg.atlas then
+        arg.image = arg.atlas.sheet
+    end
+
     local im = arg.image
     local buffer = arg.buffer
 
@@ -48,9 +58,17 @@ return function(arg)
     local p = gfx.newParticleSystem(im, buffer)
 
     for key, value in pairs(arg) do
-        if key ~= "image" and key ~= "buffer" then
+        if key ~= "image" and key ~= "buffer" and key ~= "atlas" and key ~= "stop" and key ~= "emit" then
             apply_api(p, key, value)
         end
+    end
+
+    if arg.emit then
+        p:emit(arg.emit)
+    end
+
+    if arg.stop then
+        p:stop()
     end
 
     return p

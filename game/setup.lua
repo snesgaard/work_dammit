@@ -53,10 +53,18 @@ function setup.init_battle()
         return nodes.game:monitor_stat(...)
     end
 
+    function add_stat(name, id, value)
+        local mech = require "game.mechanics"
+        map_stat(name, id, mech.add_stat(value))
+    end
+
     nodes.damage_number = process.create(ui.damage_number)
     nodes.char_monitor = process.create(ui.char_monitor)
     nodes.enrage_monitor = process.create(ui.enrage_monitor)
     nodes.sfx = process.create()
+    nodes.post_process = process.create(
+        require("post_process/post_process_manager")
+    )
     nodes.sprite_server = process.create(ui.sprite_server)
 
     nodes.charge = process.create(sfx.manager.charge)

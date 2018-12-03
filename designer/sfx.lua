@@ -17,10 +17,18 @@ function love.load(arg)
 
     settings = {origin = false}
 
-    for _, path in ipairs(arg) do
+    local function creation(path)
         local p = path:gsub('.lua', '')
         local t = reload(p)
-        local n = nodes.holder:child(t)
+        if p:find("post_process") then
+            return nodes.post_process:child(t)
+        else
+            return nodes.holder:child(t)
+        end
+    end
+
+    for _, path in ipairs(arg) do
+        local n = creation(path)
         if n.test then
             n:fork(n.test, settings)
         end
@@ -64,7 +72,13 @@ local function draw_pause(x, y, w, h)
 end
 
 function love.draw()
+    gfx.setCanvas({nodes.post_process:front(), stencil=true})
+    gfx.clear(0, 0, 0, 0)
+
+    gfx.setColor(1, 1, 1)
     local w, h = gfx.getWidth(), gfx.getHeight()
+    gfx.setColor(0, 0, 0, 1)
+    gfx.rectangle("fill", 0, 0, w, h)
     gfx.setColor(255, 255, 255, 255)
     gfx.setLineWidth(2)
     gfx.line(0, h * 0.5, w, h * 0.5)
@@ -76,6 +90,10 @@ function love.draw()
     else
         nodes.holder:draw(w * 0.5, h * 0.5)
     end
+
+    gfx.setCanvas()
+
+    nodes.post_process:draw()
     draw_pause(25, 25, 50, 40)
 end
 

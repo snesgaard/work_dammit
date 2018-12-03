@@ -31,11 +31,10 @@ function battle:create()
     set_stat(
         "ability", id,
         list(
-            ability("fencer.cut"),
-            ability("fencer.hamstring"),
-            ability("fencer.evade"),
-            ability("fencer.embolden"),
-            ability("potion")
+            ability("fencer.cut1"),
+            ability("fencer.strike1"),
+            ability("fencer.pierce1"),
+            ability("fencer.evasive_maneuver")
         )
     )
 

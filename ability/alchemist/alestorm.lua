@@ -26,7 +26,7 @@ end
 potion.target = {
     type = "multiple",
     primary = target.same_side,
-    candidates = function(index, id, user)
+    condition = function(index, id, user)
         return target.is_alive(id)
     end
 }

@@ -71,6 +71,8 @@ function love.load(arg)
         gfx.setColor(0.5, 0.5, 0.8)
         old_draw_window(...)
     end
+
+    nodes.post_process:child(require "post_process/ripple")
 end
 
 
@@ -105,6 +107,9 @@ local shader_str = [[
 local minion_shader = gfx.newShader(shader_str)
 
 function love.draw()
+    gfx.setCanvas(nodes.post_process:front())
+    gfx.clear(0, 0, 0, 0)
+
     gfx.setColor(1, 1, 1)
     bg:draw(0, 0, 2, 2)
     nodes.sprite_server:draw()
@@ -113,7 +118,7 @@ function love.draw()
     gfx.clear(0, 0, 0, 0)
     nodes.minion:draw()
 
-    gfx.setCanvas()
+    gfx.setCanvas({nodes.post_process:front(), stencil=true})
 
     gfx.setShader(minion_shader)
     gfx.stencil(function()
@@ -130,8 +135,13 @@ function love.draw()
 
     nodes.sfx:draw()
     nodes.charge:draw()
-    nodes.damage_number:draw()
     nodes.enrage_monitor:draw()
+
+    gfx.setCanvas()
+
+    nodes.post_process:draw()
+
+    nodes.damage_number:draw()
 
     for id, ui in pairs(visual.ui) do
         local offset = visual.ui_offset[id] or 0

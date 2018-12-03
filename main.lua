@@ -23,9 +23,47 @@ event = Event.create
 spatial = Spatial.create
 --Sprite = require "animation/sprite"
 
+function gfx.prerender(w, h, f, ...)
+    local args = {...}
+    local prev_c = gfx.getCanvas()
+    local c = gfx.newCanvas(w, h)
+    gfx.setCanvas({c, stencil=true})
+    f(w, h, unpack(args))
+    gfx.setCanvas(prev_c)
+    return c
+end
+
+function gfx.hex2color(hex)
+    local splitToRGB = {}
+
+    if # hex < 6 then hex = hex .. string.rep("F", 6 - # hex) end --flesh out bad hexes
+
+    for x = 1, # hex - 1, 2 do
+    	 table.insert(splitToRGB, tonumber(hex:sub(x, x + 1), 16) / 255.0) --convert hexes to dec
+    	 if splitToRGB[# splitToRGB] < 0 then slpitToRGB[# splitToRGB] = 0 end --prevents negative values
+    end
+    return list(unpack(splitToRGB))
+end
+
 function reload(p)
     package.loaded[p] = nil
     return require(p)
+end
+
+function gfx.read_shader(...)
+    local paths = list(...)
+        :filter(function(p)
+            local info = love.filesystem.getInfo(p)
+            if not info then
+                log.warn("Shader <%s> does not exist", p)
+            end
+            return info
+        end)
+        :map(function(p)
+            return love.filesystem.read(p)
+        end)
+
+    return gfx.newShader(unpack(paths))
 end
 
 function math.cycle(value, min, max)
@@ -73,6 +111,8 @@ end
 function root_node(self)
     self.keypressed = Event.create()
     self.keyreleased = Event.create()
+    self.mousepressed = event()
+    self.mousereleased = event()
 end
 
 nodes = {}
@@ -133,4 +173,12 @@ function love.keyreleased(key, scancode)
     local timer = keyrepeaters[key]
     keyrepeaters[key] = nil
     timer:remove()
+end
+
+function love.mousepressed(...)
+    nodes.root.mousepressed(...)
+end
+
+function love.mousereleased(...)
+    nodes.root.mousereleased(...)
 end

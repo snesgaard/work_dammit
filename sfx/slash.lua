@@ -11,6 +11,7 @@ function slash:create()
     self.blur.gaussianblur.sigma = 1.5
     self:fork(self.life)
     self.pos = vec2(0, 0)
+    self.on_finish = event()
 end
 
 function slash:set_pos(pos)
@@ -25,7 +26,6 @@ function slash:__draw(x, y)
 
     local function draw_center()
         gfx.push()
-        gfx.origin()
         gfx.translate(x, y)
         gfx.rotate(math.pi * 0.25)
         gfx.setColor(1, 1, 1)
@@ -35,7 +35,6 @@ function slash:__draw(x, y)
 
     local function do_draw()
         gfx.push()
-        gfx.origin()
         gfx.translate(x, y)
         gfx.rotate(math.pi * 0.25)
         gfx.setColor(0.8, 0.2, 0.2)
@@ -66,6 +65,7 @@ function slash:life()
         }
     )
     self:wait(tween)
+    self.on_finish()
     self:destroy()
 end
 

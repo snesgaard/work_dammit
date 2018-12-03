@@ -1,0 +1,5 @@
+Huge Bomb:
+  Minion: After 3 round, deal 15 damage to a side.
+
+Healing spray:
+  Minion: Restore 3 health to a side for three rounds.
